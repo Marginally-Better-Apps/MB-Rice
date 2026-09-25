@@ -2,7 +2,7 @@
 
 Version 1 is still a development schema. A `.ricepack` is a UTF-8 ZIP archive with stored, uncompressed members. Its root contains `manifest.json`, a referenced license text under `LICENSES/`, and declared raster files under `assets/`. ZIP deflate, encryption, data descriptors, nested archives, scripts and undeclared members are rejected by this build.
 
-The manifest has required keys `schemaVersion`, `id`, `name`, `version`, `author`, `license`, `requires`, `tokens`, `assets`, `components`, and `slots`. `requires` must currently be empty. Colors use six-digit RGB hex. Component kinds are `widget`, `wallpaper`, and `icon`; only widget scenes render in this build. Widget nodes are finite `stack`, `text`, `clock`, `shape`, `gradient`, `image`, and `spacer` values. Clock modes are `time`, `date`, and `weekday`.
+The manifest has required keys `schemaVersion`, `id`, `name`, `version`, `author`, `license`, `requires`, `tokens`, `assets`, `components`, and `slots`. `requires` must currently be empty. Colors use six-digit RGB hex. Component kinds are `widget`, `wallpaper`, and `icon`; only widget scenes render in this build. Widget nodes are finite `canvas`, `stack`, `text`, `clock`, `shape`, `gradient`, `image`, and `spacer` values. Clock modes are `time`, `date`, and `weekday`. A `canvas` places each child using optional normalized `x`, `y`, `width`, and `height` values between 0 and 1. Width and height must be at least 0.05; coordinates remain within the canvas.
 
 Example:
 

@@ -1,14 +1,28 @@
 appId: app.marginallybetter.rice
 ---
 - launchApp
-- tapOn: "Studio"
-- assertVisible: "Widget layers"
-- scrollUntilVisible:
-    element:
-      text: "Export wallpaper image"
-    direction: DOWN
-    visibilityPercentage: 50
-- assertVisible: "Export wallpaper image"
-- takeScreenshot: "studio-iphone17pro-ios26.5"
-- tapOn: "Setup"
-- assertVisible: "Widget slots"
+- assertVisible: "Library"
+- tapOn: "Create"
+- assertVisible: "Widgets"
+- assertVisible: "Wallpaper"
+- assertVisible: "Icon"
+- tapOn: "Widgets"
+- assertVisible: "Tap an element to edit it. Drag it to move it."
+- tapOn: "Add element"
+- tapOn: "Text"
+- assertVisible: "Remove element"
+- swipe:
+    start: "50%,29%"
+    end: "68%,34%"
+    duration: 700
+- takeScreenshot: "widget-selected-redesign"
+- tapOn: "Save theme"
+- assertVisible: "Save to Library"
+- tapOn: "Save"
+- back
+- tapOn: "Library"
+- assertVisible: "My Themes"
+- assertVisible: "My Paper"
+- tapOn: "My Paper"
+- assertVisible: "Saved in Library"
+- assertVisible: "Your text"

@@ -30,6 +30,10 @@ struct RiceNode: Codable, Equatable {
     var spacing: Double? = nil
     var fontSize: Double? = nil
     var radius: Double? = nil
+    var x: Double? = nil
+    var y: Double? = nil
+    var width: Double? = nil
+    var height: Double? = nil
     var children: [RiceNode]? = nil
 }
 
@@ -112,15 +116,20 @@ enum RiceValidator {
     private static func validateNode(_ node: RiceNode, theme: RiceManifest, depth: Int, count: inout Int) throws {
         count += 1
         guard depth < RiceLimits.depth, count <= RiceLimits.nodes else { throw RiceValidationError.invalid("Scene is too large") }
-        guard ["stack", "text", "clock", "shape", "gradient", "image", "spacer"].contains(node.type),
+        guard ["stack", "canvas", "text", "clock", "shape", "gradient", "image", "spacer"].contains(node.type),
               node.token.map({ theme.tokens[$0] != nil }) ?? true,
               node.asset.map({ id in theme.assets.contains(where: { $0.id == id }) }) ?? true,
               (node.spacing ?? 0).isFinite, (0...80).contains(node.spacing ?? 0),
               (node.fontSize ?? 20).isFinite, (8...120).contains(node.fontSize ?? 20),
-              (node.radius ?? 0).isFinite, (0...100).contains(node.radius ?? 0)
+              (node.radius ?? 0).isFinite, (0...100).contains(node.radius ?? 0),
+              (node.x ?? 0.5).isFinite, (0...1).contains(node.x ?? 0.5),
+              (node.y ?? 0.5).isFinite, (0...1).contains(node.y ?? 0.5),
+              (node.width ?? 0.8).isFinite, (0.05...1).contains(node.width ?? 0.8),
+              (node.height ?? 0.2).isFinite, (0.05...1).contains(node.height ?? 0.2)
         else { throw RiceValidationError.invalid("Unsupported or invalid scene node") }
         switch node.type {
         case "stack": guard ["horizontal", "vertical", "overlay"].contains(node.axis ?? ""), (node.children?.count ?? 0) <= 32 else { throw RiceValidationError.invalid("Invalid stack") }
+        case "canvas": guard (node.children?.count ?? 0) <= 32 else { throw RiceValidationError.invalid("Too many canvas elements") }
         case "text": guard let text = node.text, text.count <= 500 else { throw RiceValidationError.invalid("Invalid text") }
         case "clock": guard ["time", "date", "weekday"].contains(node.text ?? "") else { throw RiceValidationError.invalid("Invalid clock") }
         case "image": guard node.asset != nil else { throw RiceValidationError.invalid("Image asset missing") }

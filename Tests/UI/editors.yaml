@@ -1,0 +1,21 @@
+appId: app.marginallybetter.rice
+---
+- launchApp
+- assertVisible: "Library"
+- takeScreenshot: "library-redesign"
+- tapOn: "Create"
+- assertVisible: "Widgets"
+- takeScreenshot: "create-redesign"
+- tapOn: "Widgets"
+- assertVisible: "Tap an element to edit it. Drag it to move it."
+- takeScreenshot: "widgets-redesign"
+- tapOn:
+    point: "9%,9%"
+- tapOn: "Wallpaper"
+- assertVisible: "Choose photo"
+- takeScreenshot: "wallpaper-redesign"
+- tapOn:
+    point: "9%,9%"
+- tapOn: "Icon"
+- assertVisible: "Export icon"
+- takeScreenshot: "icon-redesign"

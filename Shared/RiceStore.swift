@@ -54,6 +54,28 @@ struct RiceStore {
         root.appending(path: "themes").appending(path: themeID).appending(path: path)
     }
 
+    func files(for manifest: RiceManifest) throws -> [String: Data] {
+        var files: [String: Data] = [:]
+        for asset in manifest.assets {
+            files[asset.path] = try Data(contentsOf: assetURL(themeID: manifest.id, path: asset.path))
+        }
+        for license in Set([manifest.license] + manifest.assets.map(\.license)) {
+            files[license] = license == "LICENSES/MIT.txt"
+                ? Data(RicePack.licenseText.utf8)
+                : try Data(contentsOf: assetURL(themeID: manifest.id, path: license))
+        }
+        return files
+    }
+
+    func writeFiles(themeID: String, files: [String: Data]) throws {
+        for (path, data) in files {
+            guard RiceValidator.safePath(path) else { throw RiceValidationError.invalid("Invalid asset path") }
+            let destination = assetURL(themeID: themeID, path: path)
+            try FileManager.default.createDirectory(at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try data.write(to: destination, options: .atomic)
+        }
+    }
+
     func install(_ manifest: RiceManifest, files: [String: Data]) throws {
         try RiceValidator.validate(manifest)
         var state = try read()

@@ -55,6 +55,35 @@ final class RiceTests: XCTestCase {
         XCTAssertThrowsError(try store.install(pack.manifest, files: pack.files))
     }
 
+    func testSavedCanvasThemeCanBeLoadedWithItsArtwork() throws {
+        let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = RiceStore(root: root)
+        let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "valid-image", withExtension: "ricepack"))
+        let imported = try RicePack.read(Data(contentsOf: url))
+        try store.install(imported.manifest, files: imported.files)
+
+        var saved = imported.manifest
+        saved.id = "custom-saved-image"
+        var image = RiceNode(type: "image", asset: saved.assets[0].id, x: 0.3, y: 0.7, width: 0.5, height: 0.4)
+        image.radius = 0
+        saved.components[0].root = RiceNode(type: "canvas", children: [image])
+        let files = try store.files(for: imported.manifest)
+        try store.install(saved, files: files)
+
+        let loaded = try XCTUnwrap(store.read().themes.first(where: { $0.id == saved.id }))
+        XCTAssertEqual(loaded.components[0].root.children?[0].x, 0.3)
+        XCTAssertEqual(try store.files(for: loaded)[saved.assets[0].path], files[saved.assets[0].path])
+    }
+
+    func testCanvasRejectsOffscreenPosition() throws {
+        var theme = RicePresets.all[0]
+        theme.components[0].root = RiceNode(type: "canvas", children: [
+            RiceNode(type: "text", text: "Hello", x: 1.2, y: 0.5, width: 0.5, height: 0.2)
+        ])
+        XCTAssertThrowsError(try RiceValidator.validate(theme))
+    }
+
     func testExamplePacksImport() throws {
         for name in ["paper-sample", "dusk-sample", "geometry-sample"] {
             let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: name, withExtension: "ricepack"))

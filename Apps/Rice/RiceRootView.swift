@@ -2,40 +2,38 @@ import SwiftUI
 import UniformTypeIdentifiers
 import PhotosUI
 
-private struct RiceLayerRow: Identifiable {
-    let path: [Int]
-    let node: RiceNode
-    let level: Int
-    var id: String { path.map { String($0) }.joined(separator: ".") }
-}
+private enum RiceTab: Hashable { case library, create, setup, settings }
 
 struct RiceRootView: View {
     @EnvironmentObject private var model: RiceAppModel
+    @State private var tab: RiceTab = .library
+    @State private var createStackID = UUID()
     @State private var importing = false
-    @State private var showingExportAudit = false
+    @State private var showingSaveName = false
+    @State private var saveName = ""
     @State private var selectedWallpaperPhoto: PhotosPickerItem?
+    @State private var selectedWidgetPhoto: PhotosPickerItem?
     @State private var selectedComponentID = "main"
-    @State private var selectedNodePath: [Int] = []
-    @State private var librarySearch = ""
+    @State private var selectedElement: Int?
 
     var body: some View {
-        TabView {
-            NavigationStack { library }.tabItem { Label("Library", systemImage: "square.grid.2x2") }
-            NavigationStack { studio }.tabItem { Label("Studio", systemImage: "paintpalette") }
-            NavigationStack { setup }.tabItem { Label("Setup", systemImage: "checklist") }
-            NavigationStack { settings }.tabItem { Label("Settings", systemImage: "gearshape") }
+        TabView(selection: $tab) {
+            NavigationStack { library }.tabItem { Label("Library", systemImage: "square.grid.2x2") }.tag(RiceTab.library)
+            NavigationStack { create }.id(createStackID).tabItem { Label("Create", systemImage: "slider.horizontal.3") }.tag(RiceTab.create)
+            NavigationStack { setup }.tabItem { Label("Set Up", systemImage: "checkmark.circle") }.tag(RiceTab.setup)
+            NavigationStack { settings }.tabItem { Label("Settings", systemImage: "gearshape") }.tag(RiceTab.settings)
         }
-        .fileImporter(isPresented: $importing, allowedContentTypes: [.ricepack, .zip], allowsMultipleSelection: false) { result in
-            if case .success(let urls) = result, let url = urls.first { model.prepareImport(url) }
+        .fileImporter(isPresented: $importing, allowedContentTypes: [.ricepack, .zip]) { result in
+            if case .success(let url) = result { model.prepareImport(url) }
             if case .failure(let error) = result { model.error = error.localizedDescription }
         }
         .sheet(isPresented: Binding(get: { model.pendingImport != nil }, set: { if !$0 { model.pendingImport = nil } })) { importPreview }
         .sheet(item: $model.shareItem) { ShareSheet(item: $0) }
-        .confirmationDialog("Share this theme?", isPresented: $showingExportAudit) {
-            Button("Export ricepack") { model.exportTheme() }
-        } message: {
-            Text("Includes \(model.activeTheme.components.count) public components, \(model.activeTheme.assets.count) declared assets, palette colors and license text. Review captions before sharing. No device bindings or credentials are included.")
-        }
+        .alert("Save to Library", isPresented: $showingSaveName) {
+            TextField("Theme name", text: $saveName)
+            Button("Save") { model.saveDraft(name: saveName) }
+            Button("Cancel", role: .cancel) {}
+        } message: { Text("Your theme will appear in My Themes.") }
         .alert("Rice", isPresented: Binding(get: { model.error != nil }, set: { if !$0 { model.error = nil } })) {
             Button("OK", role: .cancel) { model.error = nil }
         } message: { Text(model.error ?? "") }
@@ -43,300 +41,531 @@ struct RiceRootView: View {
             guard let item else { return }
             Task {
                 do {
-                    guard let data = try await item.loadTransferable(type: Data.self) else { throw RiceValidationError.invalid("Could not read the selected photo") }
+                    guard let data = try await item.loadTransferable(type: Data.self) else { throw RiceValidationError.invalid("Could not read the photo") }
                     await model.importWallpaperPhoto(data)
+                } catch { model.error = error.localizedDescription }
+            }
+        }
+        .onChange(of: selectedWidgetPhoto) { _, item in
+            guard let item, let componentID = studioComponent?.id else { return }
+            Task {
+                do {
+                    guard let data = try await item.loadTransferable(type: Data.self) else { throw RiceValidationError.invalid("Could not read the photo") }
+                    await model.addWidgetPhoto(data, componentID: componentID)
+                    selectedElement = (studioComponent?.root.children?.count ?? 1) - 1
+                    selectedWidgetPhoto = nil
                 } catch { model.error = error.localizedDescription }
             }
         }
     }
 
     private var library: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Your iPhone, your way").font(.largeTitle.bold())
-                    Text("Create and share matching themes offline.").foregroundStyle(.secondary)
+        List {
+            Section("Current widgets") {
+                if let component = model.activeTheme.components.first {
+                    RiceComponentView(component: component, theme: model.activeTheme,
+                                      images: model.images(for: model.activeTheme, component: component))
+                        .frame(height: 182)
+                        .listRowInsets(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
+                        .accessibilityLabel("Current theme preview: \(model.activeTheme.name)")
                 }
-                preview(theme: model.activeTheme, component: model.activeTheme.components[0], images: model.previewImages[model.activeTheme.components[0].id] ?? [:], height: 210)
                 HStack {
-                    Button("Import theme", systemImage: "square.and.arrow.down") { importing = true }
+                    Text(model.activeTheme.name).font(.headline)
                     Spacer()
-                    Button("Share theme", systemImage: "square.and.arrow.up") { showingExportAudit = true }
-                }.buttonStyle(.bordered)
-                Text("Themes").font(.title2.bold())
-                ForEach(model.state.themes.filter { librarySearch.isEmpty || $0.name.localizedCaseInsensitiveContains(librarySearch) || $0.author.localizedCaseInsensitiveContains(librarySearch) }) { theme in
-                    Button { model.activate(theme.id) } label: {
-                        HStack {
-                            Circle().fill(Color(hex: theme.tokens["accent"] ?? "#FFFFFF") ?? .white).frame(width: 28, height: 28)
-                            VStack(alignment: .leading) {
-                                Text(theme.name).foregroundStyle(.primary)
-                                Text("by \(theme.author)").font(.caption).foregroundStyle(.secondary)
-                            }
-                            Spacer()
-                            if model.state.activeThemeID == theme.id { Image(systemName: "checkmark.circle.fill").foregroundStyle(.tint) }
-                        }
-                    }.accessibilityLabel("Activate \(theme.name)")
-                    Divider()
+                    Button("Edit") { openEditor(model.activeTheme.id) }
                 }
-            }.padding()
-        }.navigationTitle("Rice").searchable(text: $librarySearch, prompt: "Find themes")
+            }
+            Section("My Themes") {
+                if model.savedThemes.isEmpty {
+                    Text("Themes you save will appear here.").foregroundStyle(.secondary)
+                }
+                ForEach(model.savedThemes) { theme in themeRow(theme) }
+            }
+            Section("Templates") {
+                ForEach(RicePresets.all) { theme in themeRow(theme) }
+            }
+            if !model.importedThemes.isEmpty {
+                Section("Imported") {
+                    ForEach(model.importedThemes) { theme in themeRow(theme) }
+                }
+            }
+        }
+        .listStyle(.plain)
+        .navigationTitle("Library")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button("Import theme", systemImage: "square.and.arrow.down") { importing = true }
+                    Button("Share current theme", systemImage: "square.and.arrow.up") { model.exportTheme() }
+                } label: { Image(systemName: "ellipsis.circle") }
+            }
+        }
     }
 
-    private var studio: some View {
+    private func themeRow(_ theme: RiceManifest) -> some View {
+        HStack(spacing: 12) {
+            Circle().fill(Color(hex: theme.tokens["background"] ?? "#FFFFFF") ?? .white)
+                .frame(width: 34, height: 34)
+                .overlay(Circle().strokeBorder(Color(hex: theme.tokens["accent"] ?? "#888888") ?? .gray, lineWidth: 4))
+            Button { openEditor(theme.id) } label: {
+                HStack {
+                    Text(theme.name).foregroundStyle(.primary)
+                    Spacer()
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            if model.activeTheme.id == theme.id {
+                Text("In use").font(.subheadline).foregroundStyle(.secondary)
+            } else {
+                Button("Use") { model.activate(theme.id) }.font(.subheadline)
+            }
+            Image(systemName: "chevron.right").font(.caption.bold()).foregroundStyle(.tertiary)
+        }
+        .padding(.vertical, 5)
+        .accessibilityElement(children: .contain)
+    }
+
+    private func openEditor(_ id: String) {
+        model.loadDraft(id)
+        selectedComponentID = model.draftTheme.components.first?.id ?? "main"
+        selectedElement = nil
+        createStackID = UUID()
+        tab = .create
+    }
+
+    private var create: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                Text("\(model.activeTheme.name) preview").font(.title2.bold())
-                preview(theme: model.activeTheme, component: studioComponent, images: model.previewImages[studioComponent.id] ?? [:], height: 200)
-                HStack {
-                    Button("Undo", systemImage: "arrow.uturn.backward") { model.undo() }.disabled(!model.canUndo)
-                    Button("Redo", systemImage: "arrow.uturn.forward") { model.redo() }.disabled(!model.canRedo)
-                    Spacer()
-                    Button("Duplicate", systemImage: "plus.square.on.square") { model.duplicate() }
-                }.buttonStyle(.bordered)
-                Text("Palette").font(.headline)
-                ForEach(["background", "foreground", "accent", "secondary"], id: \.self) { key in
-                    ColorPicker(key.capitalized, selection: Binding(get: {
-                        Color(hex: model.activeTheme.tokens[key] ?? "#FFFFFF") ?? .white
-                    }, set: { model.editToken(key, color: $0) }))
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(model.draftTheme.name).font(.title2.bold())
+                    Text(model.draftIsSaved ? "Saved in Library" : "Changes to save")
+                        .font(.subheadline).foregroundStyle(.secondary)
                 }
-                if let ratio = RiceContrast.ratio(model.activeTheme.tokens["foreground"] ?? "", model.activeTheme.tokens["background"] ?? ""), ratio < 4.5 {
-                    Label(String(format: "Text contrast is %.1f:1. Aim for at least 4.5:1.", ratio), systemImage: "exclamationmark.triangle")
-                        .font(.footnote).foregroundStyle(.orange)
+                if let component = model.draftTheme.components.first {
+                    RiceComponentView(component: component, theme: model.draftTheme,
+                                      images: model.previewImages[component.id] ?? [:])
+                        .frame(height: 190)
                 }
-                Text("Widget layers").font(.headline)
-                Picker("Component", selection: $selectedComponentID) {
-                    ForEach(model.activeTheme.components.filter { $0.kind == "widget" }) { component in
-                        Text(component.name).tag(component.id)
-                    }
-                }.pickerStyle(.menu)
-                ForEach(studioLayers) { layer in
-                    Button { selectedNodePath = layer.path } label: {
-                        HStack {
-                            Image(systemName: layer.node.type == "stack" ? "square.stack.3d.up" : layer.node.type == "clock" ? "clock" : "text.alignleft")
-                            Text(layer.node.type.capitalized)
-                            if let text = layer.node.text { Text(text).lineLimit(1).foregroundStyle(.secondary) }
-                            Spacer()
-                            if selectedNodePath == layer.path { Image(systemName: "checkmark") }
-                        }.padding(.vertical, 6).padding(.leading, CGFloat(layer.level) * 16)
-                    }.buttonStyle(.plain)
-                        .accessibilityLabel("Select \(layer.node.type) layer \(layer.node.text ?? "")")
+                VStack(spacing: 0) {
+                    editorLink("Widgets", symbol: "square.on.square", detail: "Move and edit elements", destination: AnyView(widgetEditor))
+                    Divider()
+                    editorLink("Wallpaper", symbol: "iphone.gen3", detail: "Choose a style or photo", destination: AnyView(wallpaperEditor))
+                    Divider()
+                    editorLink("Icon", symbol: "app", detail: "Make a matching image", destination: AnyView(iconEditor))
                 }
-                if let node = selectedNode { nodeInspector(node) }
-                Text("Artwork").font(.headline)
-                wallpaperStudio
-                Button("Export icon image", systemImage: "app") { model.exportArtwork(icon: true) }.buttonStyle(.bordered)
-                Text("The icon export matches the theme palette. iOS shortcut icons and wallpaper placement are completed in Setup.").font(.footnote).foregroundStyle(.secondary)
-            }.padding()
-        }.navigationTitle("Studio")
-            .onChange(of: model.activeTheme.id) { _, _ in
-                selectedComponentID = model.activeTheme.components.first?.id ?? "main"
-                selectedNodePath = []
             }
-            .onChange(of: selectedComponentID) { _, _ in model.loadPreviewImages(for: studioComponent) }
+            .padding(20)
+        }
+        .navigationTitle("Create")
+        .safeAreaInset(edge: .bottom) { saveBar }
     }
 
-    private var studioComponent: RiceComponent {
-        model.activeTheme.components.first(where: { $0.id == selectedComponentID }) ?? model.activeTheme.components[0]
+    private func editorLink(_ title: String, symbol: String, detail: String, destination: AnyView) -> some View {
+        NavigationLink(destination: destination) {
+            HStack(spacing: 14) {
+                Image(systemName: symbol).font(.title3).frame(width: 30)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title).font(.headline)
+                    Text(detail).font(.subheadline).foregroundStyle(.secondary)
+                }
+                Spacer()
+                Image(systemName: "chevron.right").font(.caption.bold()).foregroundStyle(.tertiary)
+            }
+            .foregroundStyle(.primary)
+            .padding(.vertical, 17)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var saveBar: some View {
+        HStack(spacing: 12) {
+            Button("Save theme") { saveCurrentTheme() }
+                .buttonStyle(.bordered)
+            Button("Use for widgets") { model.applyDraft() }
+                .buttonStyle(.borderedProminent)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(.bar)
+    }
+
+    private func saveCurrentTheme() {
+        if model.draftTheme.id.hasPrefix("custom-") { model.saveDraft() }
+        else {
+            saveName = "My \(model.draftTheme.name)"
+            showingSaveName = true
+        }
+    }
+
+    private var widgetEditor: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Picker("Widget", selection: $selectedComponentID) {
+                    ForEach(model.draftTheme.components.filter { $0.kind == "widget" }) { component in
+                        Text(component.name).tag(component.id)
+                    }
+                }
+                .pickerStyle(.menu)
+                Spacer()
+                if model.canUndo { Button("Undo", systemImage: "arrow.uturn.backward") { model.undo() }.labelStyle(.iconOnly) }
+                if model.canRedo { Button("Redo", systemImage: "arrow.uturn.forward") { model.redo() }.labelStyle(.iconOnly) }
+            }
+            .padding(.horizontal, 18)
+            .padding(.vertical, 8)
+            if let component = studioComponent {
+                RiceCanvasEditor(component: component, theme: model.draftTheme,
+                                 images: model.previewImages[component.id] ?? [:], selectedIndex: $selectedElement,
+                                 onMove: { index, x, y in model.moveElement(componentID: component.id, index: index, x: x, y: y) })
+                    .frame(height: 220)
+                    .padding(.horizontal, 18)
+                    .padding(.bottom, 12)
+                Divider()
+                List {
+                    if let index = selectedElement, let node = selectedNode {
+                        Section("Selected element") {
+                            if node.type == "text" {
+                                TextField("Text", text: nodeTextBinding(index))
+                            }
+                            if node.type == "clock" {
+                                Picker("Show", selection: nodeTextBinding(index)) {
+                                    Text("Time").tag("time")
+                                    Text("Date").tag("date")
+                                    Text("Weekday").tag("weekday")
+                                }
+                            }
+                            if ["text", "clock", "shape", "gradient"].contains(node.type) {
+                                Picker("Color", selection: nodeTokenBinding(index)) {
+                                    ForEach(model.draftTheme.tokens.keys.sorted(), id: \.self) { key in Text(key.capitalized).tag(key) }
+                                }
+                            }
+                            if ["text", "clock"].contains(node.type) {
+                                LabeledContent("Text size", value: "\(Int(node.fontSize ?? 20))")
+                                Slider(value: nodeNumberBinding(index, \.fontSize, fallback: 20), in: 8...120)
+                            }
+                            if node.type == "shape" {
+                                LabeledContent("Corner roundness", value: "\(Int(node.radius ?? 8))")
+                                Slider(value: nodeNumberBinding(index, \.radius, fallback: 8), in: 0...50)
+                            }
+                            Button("Remove element", role: .destructive) {
+                                model.removeElement(componentID: component.id, index: index)
+                                selectedElement = nil
+                            }
+                        }
+                        Section {
+                            DisclosureGroup("Size and position") {
+                                LabeledContent("Width", value: "\(Int((node.width ?? 0.8) * 100))%")
+                                Slider(value: nodeNumberBinding(index, \.width, fallback: 0.8), in: 0.1...1)
+                                LabeledContent("Height", value: "\(Int((node.height ?? 0.2) * 100))%")
+                                Slider(value: nodeNumberBinding(index, \.height, fallback: 0.2), in: 0.05...1)
+                                Button("Bring forward") { model.reorderElement(componentID: component.id, index: index, direction: 1); selectedElement = min(index + 1, (studioComponent?.root.children?.count ?? 1) - 1) }
+                                Button("Send backward") { model.reorderElement(componentID: component.id, index: index, direction: -1); selectedElement = max(index - 1, 0) }
+                            }
+                        }
+                    } else {
+                        Section { Text("Tap an element to edit it. Drag it to move it.").foregroundStyle(.secondary) }
+                    }
+                    Section {
+                        DisclosureGroup("Theme colors") {
+                            ForEach(["background", "foreground", "accent", "secondary"], id: \.self) { key in
+                                ColorPicker(key.capitalized, selection: Binding(get: {
+                                    Color(hex: model.draftTheme.tokens[key] ?? "#FFFFFF") ?? .white
+                                }, set: { model.editToken(key, color: $0) }))
+                            }
+                        }
+                    }
+                }
+                .listStyle(.plain)
+            }
+        }
+        .navigationTitle("Widgets")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button("Text", systemImage: "textformat") { addElement("text") }
+                    Button("Clock", systemImage: "clock") { addElement("clock") }
+                    Button("Shape", systemImage: "square.fill") { addElement("shape") }
+                    PhotosPicker(selection: $selectedWidgetPhoto, matching: .images) {
+                        Label("Photo", systemImage: "photo")
+                    }
+                } label: { Label("Add element", systemImage: "plus") }
+            }
+        }
+        .safeAreaInset(edge: .bottom) { saveBar }
+        .onAppear { prepareCanvas() }
+        .onChange(of: selectedComponentID) { _, _ in prepareCanvas() }
+    }
+
+    private var studioComponent: RiceComponent? {
+        model.draftTheme.components.first(where: { $0.id == selectedComponentID }) ?? model.draftTheme.components.first(where: { $0.kind == "widget" })
     }
 
     private var selectedNode: RiceNode? {
-        var node = studioComponent.root
-        for index in selectedNodePath {
-            guard let children = node.children, children.indices.contains(index) else { return nil }
-            node = children[index]
-        }
-        return node
+        guard let index = selectedElement, let children = studioComponent?.root.children, children.indices.contains(index) else { return nil }
+        return children[index]
     }
 
-    private var studioLayers: [RiceLayerRow] {
-        var rows: [RiceLayerRow] = []
-        func visit(_ node: RiceNode, path: [Int], level: Int) {
-            rows.append(RiceLayerRow(path: path, node: node, level: level))
-            for (index, child) in (node.children ?? []).enumerated() {
-                visit(child, path: path + [index], level: level + 1)
-            }
-        }
-        visit(studioComponent.root, path: [], level: 0)
-        return rows
+    private func prepareCanvas() {
+        guard let component = studioComponent else { return }
+        model.makeCanvas(componentID: component.id)
+        model.loadPreviewImages(for: component)
+        selectedElement = nil
     }
 
-    private func nodeInspector(_ node: RiceNode) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Selected layer").font(.headline)
-            if node.type == "text" {
-                TextField("Text", text: Binding(get: { selectedNode?.text ?? "" }, set: { value in
-                    model.editNode(componentID: studioComponent.id, path: selectedNodePath) { $0.text = value }
-                })).textFieldStyle(.roundedBorder)
-            }
-            if node.type == "clock" {
-                Picker("Display", selection: Binding(get: { selectedNode?.text ?? "time" }, set: { value in
-                    model.editNode(componentID: studioComponent.id, path: selectedNodePath) { $0.text = value }
-                })) {
-                    Text("Time").tag("time")
-                    Text("Date").tag("date")
-                    Text("Weekday").tag("weekday")
-                }.pickerStyle(.segmented)
-            }
-            if node.type == "stack" {
-                Picker("Layout", selection: Binding(get: { selectedNode?.axis ?? "vertical" }, set: { value in
-                    model.editNode(componentID: studioComponent.id, path: selectedNodePath) { $0.axis = value }
-                })) {
-                    Text("Vertical").tag("vertical")
-                    Text("Horizontal").tag("horizontal")
-                    Text("Overlay").tag("overlay")
-                }.pickerStyle(.menu)
-                Slider(value: Binding(get: { selectedNode?.spacing ?? 4 }, set: { value in
-                    model.editNode(componentID: studioComponent.id, path: selectedNodePath) { $0.spacing = value }
-                }), in: 0...40) { Text("Spacing") }
-            }
-            if ["text", "clock", "shape", "gradient"].contains(node.type) {
-                Picker("Color token", selection: Binding(get: { selectedNode?.token ?? "foreground" }, set: { value in
-                    model.editNode(componentID: studioComponent.id, path: selectedNodePath) { $0.token = value }
-                })) {
-                    ForEach(model.activeTheme.tokens.keys.sorted(), id: \.self) { token in Text(token.capitalized).tag(token) }
-                }.pickerStyle(.menu)
-            }
-            if ["text", "clock"].contains(node.type) {
-                Slider(value: Binding(get: { selectedNode?.fontSize ?? 20 }, set: { value in
-                    model.editNode(componentID: studioComponent.id, path: selectedNodePath) { $0.fontSize = value }
-                }), in: 8...80) { Text("Text size") }
-            }
-        }.padding().background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18))
+    private func addElement(_ type: String) {
+        guard let component = studioComponent else { return }
+        model.addElement(componentID: component.id, type: type)
+        selectedElement = (studioComponent?.root.children?.count ?? 1) - 1
     }
 
-    private var wallpaperStudio: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Picker("Wallpaper style", selection: Binding(get: { model.wallpaperPattern }, set: { model.setWallpaperPattern($0) })) {
-                ForEach(RicePattern.allCases) { pattern in Text(pattern.rawValue).tag(pattern) }
-            }.pickerStyle(.menu)
-            HStack {
-                PhotosPicker(selection: $selectedWallpaperPhoto, matching: .images) { Label("Choose photo", systemImage: "photo.on.rectangle") }
-                if model.wallpaperPhoto != nil { Button("Remove photo", role: .destructive) { model.removeWallpaperPhoto() } }
-            }.buttonStyle(.bordered)
-            if model.wallpaperPattern == .photo && model.wallpaperPhoto != nil {
-                VStack {
-                    Slider(value: Binding(get: { model.focalX }, set: { model.setFocalPoint(x: $0) }), in: 0...1) { Text("Horizontal focus") }
-                    Slider(value: Binding(get: { model.focalY }, set: { model.setFocalPoint(y: $0) }), in: 0...1) { Text("Vertical focus") }
+    private func nodeTextBinding(_ index: Int) -> Binding<String> {
+        Binding(get: { selectedNode?.text ?? "" }, set: { value in
+            guard let id = studioComponent?.id else { return }
+            model.editNode(componentID: id, path: [index]) { $0.text = String(value.prefix(500)) }
+        })
+    }
+
+    private func nodeTokenBinding(_ index: Int) -> Binding<String> {
+        Binding(get: { selectedNode?.token ?? "foreground" }, set: { value in
+            guard let id = studioComponent?.id else { return }
+            model.editNode(componentID: id, path: [index]) { $0.token = value }
+        })
+    }
+
+    private func nodeNumberBinding(_ index: Int, _ key: WritableKeyPath<RiceNode, Double?>, fallback: Double) -> Binding<Double> {
+        Binding(get: { selectedNode?[keyPath: key] ?? fallback }, set: { value in
+            guard let id = studioComponent?.id else { return }
+            model.editNode(componentID: id, path: [index]) { $0[keyPath: key] = value }
+        })
+    }
+
+    private var wallpaperEditor: some View {
+        VStack(spacing: 0) {
+            Image(uiImage: RiceArtwork.render(theme: model.draftTheme, size: CGSize(width: 280, height: 600), icon: false,
+                pattern: model.wallpaperPattern, photo: model.wallpaperPhoto,
+                focalPoint: CGPoint(x: model.focalX, y: model.focalY)))
+                .resizable().scaledToFill().frame(width: 132, height: 284).clipped()
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .padding(.vertical, 10)
+                .accessibilityLabel("Wallpaper preview")
+            Divider()
+            List {
+                Section("Style") {
+                    Picker("Look", selection: Binding(get: { model.wallpaperPattern }, set: { model.setWallpaperPattern($0) })) {
+                        ForEach(RicePattern.allCases) { pattern in Text(pattern.rawValue).tag(pattern) }
+                    }
+                }
+                Section("Photo") {
+                    PhotosPicker(selection: $selectedWallpaperPhoto, matching: .images) {
+                        Label("Choose photo", systemImage: "photo")
+                    }
+                    if model.wallpaperPhoto != nil {
+                        Button("Remove photo", role: .destructive) { model.removeWallpaperPhoto() }
+                    }
+                    if model.wallpaperPattern == .photo && model.wallpaperPhoto != nil {
+                        DisclosureGroup("Photo position") {
+                            Text("Move the crop horizontally").font(.caption).foregroundStyle(.secondary)
+                            Slider(value: Binding(get: { model.focalX }, set: { model.setFocalPoint(x: $0) }), in: 0...1)
+                            Text("Move the crop vertically").font(.caption).foregroundStyle(.secondary)
+                            Slider(value: Binding(get: { model.focalY }, set: { model.setFocalPoint(y: $0) }), in: 0...1)
+                        }
+                    }
+                }
+                Section {
+                    Button("Export wallpaper", systemImage: "square.and.arrow.up") { model.exportArtwork(icon: false) }
                 }
             }
-            HStack {
-                Spacer()
-                Image(uiImage: RiceArtwork.render(theme: model.activeTheme, size: CGSize(width: 280, height: 600), icon: false,
-                    pattern: model.wallpaperPattern, photo: model.wallpaperPhoto,
-                    focalPoint: CGPoint(x: model.focalX, y: model.focalY)))
-                    .resizable().scaledToFill().frame(width: 210, height: 450).clipped()
-                    .overlay(alignment: .top) {
-                        VStack(spacing: 2) {
-                            Text("Preview").font(.caption2.bold())
-                            Text("9:41").font(.system(size: 42, weight: .semibold, design: .rounded))
-                            Text("Monday, June 1").font(.caption)
-                        }
-                        .foregroundStyle(.white)
-                        .padding(8)
-                        .background(.black.opacity(0.35), in: RoundedRectangle(cornerRadius: 14))
-                        .padding(.top, 25)
-                    }
-                    .clipShape(RoundedRectangle(cornerRadius: 24))
-                    .accessibilityLabel("Wallpaper preview with sample clock overlay")
-                Spacer()
-            }
-            Button("Export wallpaper image", systemImage: "square.and.arrow.up") { model.exportArtwork(icon: false) }
-                .buttonStyle(.borderedProminent)
-            Text("The sample clock appears only in the preview. Selected photos stay in app storage and are excluded from ricepack exports.")
-                .font(.footnote).foregroundStyle(.secondary)
+            .listStyle(.plain)
         }
+        .navigationTitle("Wallpaper")
+        .navigationBarTitleDisplayMode(.inline)
+        .safeAreaInset(edge: .bottom) { saveBar }
+    }
+
+    private var iconEditor: some View {
+        VStack(spacing: 0) {
+            Image(uiImage: RiceArtwork.render(theme: model.draftTheme, size: CGSize(width: 512, height: 512), icon: true,
+                pattern: .rings, photo: nil, focalPoint: CGPoint(x: 0.5, y: 0.5)))
+                .resizable().frame(width: 178, height: 178)
+                .clipShape(RoundedRectangle(cornerRadius: 38))
+                .padding(.vertical, 26)
+                .accessibilityLabel("Icon preview")
+            Divider()
+            List {
+                Section("Colors") {
+                    ForEach(["background", "foreground", "accent"], id: \.self) { key in
+                        ColorPicker(key.capitalized, selection: Binding(get: {
+                            Color(hex: model.draftTheme.tokens[key] ?? "#FFFFFF") ?? .white
+                        }, set: { model.editToken(key, color: $0) }))
+                    }
+                }
+                Section {
+                    Button("Export icon", systemImage: "square.and.arrow.up") { model.exportArtwork(icon: true) }
+                }
+            }
+            .listStyle(.plain)
+        }
+        .navigationTitle("Icon")
+        .navigationBarTitleDisplayMode(.inline)
+        .safeAreaInset(edge: .bottom) { saveBar }
     }
 
     private var setup: some View {
         List {
-            Section {
-                Text("Active: \(model.activeTheme.name)")
-                Text("Rice updates its own slot bindings. iOS owns widget placement, wallpaper selection and Home Screen shortcuts.")
-                    .font(.footnote).foregroundStyle(.secondary)
-            }
-            Section("Widget slots") {
-                ForEach(model.state.slots) { slot in
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(slot.name)
-                            Text(slot.pinned ? "Pinned to \(slot.themeID)" : "Follows active theme").font(.caption).foregroundStyle(.secondary)
-                        }
-                        Spacer()
-                        Toggle("Pin", isOn: Binding(get: { model.state.slots.first(where: { $0.id == slot.id })?.pinned ?? false }, set: { value in
-                            if let index = model.state.slots.firstIndex(where: { $0.id == slot.id }) {
-                                model.state.slots[index].pinned = value
-                                if value { model.save() } else { model.activate(model.state.activeThemeID) }
-                            }
-                        })).labelsHidden()
-                    }
-                }
-            }
-            Section("Finish in iOS") {
-                setupRow(id: "widget", title: "Add a Rice widget", detail: "Long press the Home Screen, tap Edit, then Add Widget. Pick Rice and choose a slot.")
-                setupRow(id: "wallpaper", title: "Set your wallpaper", detail: "Export in Studio, save the image, then use Settings > Wallpaper > Add New Wallpaper.")
-                setupRow(id: "icon", title: "Create an icon shortcut", detail: "Export the icon. In Shortcuts, create Open App for your chosen app, then Add to Home Screen with the image. This launcher is separate from the app's native icon and badges.")
+            Section("Widget theme") { Text(model.activeTheme.name) }
+            Section("On your iPhone") {
+                setupRow("widget", title: "Add a widget", detail: "Touch and hold the Home Screen. Tap Edit, then Add Widget. Choose Rice and pick a widget.")
+                setupRow("wallpaper", title: "Set wallpaper", detail: "Export your wallpaper in Create. Save the image, then open Settings and choose Wallpaper.")
+                setupRow("icon", title: "Make an app shortcut", detail: "Export your icon in Create. In Shortcuts, create an Open App shortcut and add it to the Home Screen using your icon image.")
             }
             Section {
-                Text("Checked steps are your report. Rice cannot verify Home Screen changes made by iOS.").font(.footnote).foregroundStyle(.secondary)
+                NavigationLink("Widget slots") { slotSettings }
             }
-        }.navigationTitle("Set up theme")
+        }
+        .listStyle(.plain)
+        .navigationTitle("Set Up")
     }
 
-    private func setupRow(id: String, title: String, detail: String) -> some View {
-        VStack(alignment: .leading, spacing: 7) {
-            Toggle(title, isOn: Binding(get: { model.state.completedSetupSteps.contains(id) }, set: { model.setSetupStep(id, done: $0) }))
-            Text(detail).font(.footnote).foregroundStyle(.secondary)
-        }.padding(.vertical, 4)
+    private func setupRow(_ id: String, title: String, detail: String) -> some View {
+        NavigationLink {
+            VStack(alignment: .leading, spacing: 22) {
+                Text(detail).font(.title3)
+                Button(model.state.completedSetupSteps.contains(id) ? "Mark as unfinished" : "Mark as done") {
+                    model.setSetupStep(id, done: !model.state.completedSetupSteps.contains(id))
+                }
+                .buttonStyle(.borderedProminent)
+                Spacer()
+            }
+            .padding()
+            .navigationTitle(title)
+        } label: {
+            HStack {
+                Text(title)
+                Spacer()
+                if model.state.completedSetupSteps.contains(id) { Image(systemName: "checkmark.circle.fill").foregroundStyle(.green) }
+            }
+        }
+    }
+
+    private var slotSettings: some View {
+        List {
+            ForEach(model.state.slots) { slot in
+                Toggle(slot.name, isOn: Binding(get: {
+                    model.state.slots.first(where: { $0.id == slot.id })?.pinned ?? false
+                }, set: { pinned in
+                    guard let index = model.state.slots.firstIndex(where: { $0.id == slot.id }) else { return }
+                    model.state.slots[index].pinned = pinned
+                    if pinned { model.save() } else { model.activate(model.state.activeThemeID) }
+                }))
+            }
+            Text("Pinned widgets keep their current theme when you switch themes.")
+                .font(.footnote).foregroundStyle(.secondary)
+        }
+        .navigationTitle("Widget Slots")
     }
 
     private var settings: some View {
         List {
-            Section("Privacy") {
-                Text("Rice works offline. It has no account, analytics or network provider in this build.")
-                Text("Imported packs are checked locally. Import and preview do not make network requests.")
-            }
-            Section("Format") {
-                Text("Ricepack schema 1, development revision 0.1")
-                Text("ZIP entries must be stored without compression. PNG, JPEG and static WebP artwork is accepted when declared and hashed.")
-            }
-            Section("Diagnostics") {
-                Text(model.appGroupAvailable ? "App Group storage: available" : "App Group storage: unavailable. The app saves locally; widgets use a sample until signed App Group access works.")
-                Text("Last widget refresh request: \(model.state.lastRefreshRequested?.formatted() ?? "none")")
-                Text("Last widget data read: \(((try? RiceStore.shared().lastWidgetRead()) ?? nil)?.formatted() ?? "none")")
-                Text("A request does not prove the system displayed a new widget.")
-                Button("Export diagnostics", systemImage: "square.and.arrow.up") { model.exportDiagnostics() }
-            }
-            Section("About") {
+            Section {
+                NavigationLink("Diagnostics") { diagnostics }
                 Link("Source code", destination: URL(string: "https://github.com/Marginally-Better-Apps/MB-Rice")!)
-                Text("Code and built-in artwork: MIT")
             }
-        }.navigationTitle("Settings")
+            Section("Privacy") {
+                Text("Your themes and photos stay on this iPhone unless you choose to share them.")
+            }
+        }
+        .listStyle(.plain)
+        .navigationTitle("Settings")
+    }
+
+    private var diagnostics: some View {
+        List {
+            LabeledContent("Shared widget storage", value: model.appGroupAvailable ? "Available" : "Unavailable")
+            LabeledContent("Last refresh request", value: model.state.lastRefreshRequested?.formatted() ?? "None")
+            LabeledContent("Last widget read", value: ((try? RiceStore.shared().lastWidgetRead()) ?? nil)?.formatted() ?? "None")
+            Button("Export diagnostics", systemImage: "square.and.arrow.up") { model.exportDiagnostics() }
+        }
+        .navigationTitle("Diagnostics")
     }
 
     private var importPreview: some View {
         NavigationStack {
-            VStack(alignment: .leading, spacing: 18) {
+            VStack(spacing: 18) {
                 if let pack = model.pendingImport {
-                    Text(pack.manifest.name).font(.title.bold())
-                    Text("by \(pack.manifest.author)")
-                    Text("\(pack.manifest.components.count) components • \(pack.manifest.assets.count) assets")
-                    Text("License: \(pack.manifest.license)")
-                    Text("No permissions or network access are needed to preview this pack.").font(.footnote)
-                    if let component = pack.manifest.components.first { preview(theme: pack.manifest, component: component, images: model.pendingImages, height: 190) }
+                    Text(pack.manifest.name).font(.title2.bold())
+                    Text("By \(pack.manifest.author)").foregroundStyle(.secondary)
+                    if let component = pack.manifest.components.first {
+                        RiceComponentView(component: component, theme: pack.manifest, images: model.pendingImages)
+                            .frame(height: 200)
+                    }
                     Spacer()
-                    Button("Import theme") { model.confirmImport() }.buttonStyle(.borderedProminent)
+                    Button("Add to Library") { model.confirmImport() }
+                        .buttonStyle(.borderedProminent)
                 }
-            }.padding().navigationTitle("Review import")
-                .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Cancel") { model.pendingImport = nil } } }
+            }
+            .padding()
+            .navigationTitle("Import Theme")
+            .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Cancel") { model.pendingImport = nil } } }
         }
     }
+}
 
-    private func preview(theme: RiceManifest, component: RiceComponent, images: [String: UIImage], height: CGFloat) -> some View {
-        RiceComponentView(component: component, theme: theme, images: images)
-            .frame(height: height)
-            .overlay(alignment: .topTrailing) {
-                Text("Preview").font(.caption2.bold()).padding(7).background(.ultraThinMaterial, in: Capsule()).padding(10)
+private struct RiceCanvasEditor: View {
+    let component: RiceComponent
+    let theme: RiceManifest
+    let images: [String: UIImage]
+    @Binding var selectedIndex: Int?
+    let onMove: (Int, Double, Double) -> Void
+
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                Color(hex: theme.tokens[component.background ?? "background"] ?? "#000000") ?? .black
+                ForEach(Array((component.root.children ?? []).enumerated()), id: \.offset) { index, node in
+                    RiceDraggableElement(node: node, theme: theme, images: images,
+                                         canvasSize: geometry.size, selected: selectedIndex == index,
+                                         onSelect: { selectedIndex = index },
+                                         onMove: { x, y in onMove(index, x, y) })
+                }
             }
-            .accessibilityLabel("Preview of \(theme.name) \(component.name)")
+            .clipShape(RoundedRectangle(cornerRadius: 22))
+        }
+        .accessibilityLabel("Widget canvas. Tap an element to edit. Drag to move.")
+    }
+}
+
+private struct RiceDraggableElement: View {
+    let node: RiceNode
+    let theme: RiceManifest
+    let images: [String: UIImage]
+    let canvasSize: CGSize
+    let selected: Bool
+    let onSelect: () -> Void
+    let onMove: (Double, Double) -> Void
+    @State private var dragOffset: CGSize = .zero
+
+    var body: some View {
+        RiceSceneView(node: node, theme: theme, images: images)
+            .frame(width: canvasSize.width * (node.width ?? 0.8), height: canvasSize.height * (node.height ?? 0.2))
+            .overlay {
+                RoundedRectangle(cornerRadius: 8)
+                    .strokeBorder(selected ? Color.accentColor : .clear, lineWidth: 2)
+            }
+            .contentShape(Rectangle())
+            .position(x: canvasSize.width * (node.x ?? 0.5) + dragOffset.width,
+                      y: canvasSize.height * (node.y ?? 0.5) + dragOffset.height)
+            .onTapGesture(perform: onSelect)
+            .gesture(DragGesture(minimumDistance: 2)
+                .onChanged { value in onSelect(); dragOffset = value.translation }
+                .onEnded { value in
+                    onMove((node.x ?? 0.5) + value.translation.width / max(canvasSize.width, 1),
+                           (node.y ?? 0.5) + value.translation.height / max(canvasSize.height, 1))
+                    dragOffset = .zero
+                })
+            .accessibilityLabel(node.type == "text" ? "Text: \(node.text ?? "")" : node.type.capitalized)
+            .accessibilityAddTraits(.isButton)
     }
 }

@@ -14,6 +14,18 @@ struct RiceSceneView: View {
 
     @ViewBuilder private var scene: some View {
         switch node.type {
+        case "canvas":
+            GeometryReader { geometry in
+                ZStack {
+                    ForEach(Array((node.children ?? []).enumerated()), id: \.offset) { _, child in
+                        RiceSceneView(node: child, theme: theme, images: images)
+                            .frame(width: geometry.size.width * (child.width ?? 0.8),
+                                   height: geometry.size.height * (child.height ?? 0.2))
+                            .position(x: geometry.size.width * (child.x ?? 0.5),
+                                      y: geometry.size.height * (child.y ?? 0.5))
+                    }
+                }
+            }
         case "stack":
             let children = Array((node.children ?? []).enumerated())
             if node.axis == "horizontal" {
