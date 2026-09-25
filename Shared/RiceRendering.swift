@@ -9,6 +9,7 @@ struct RiceSceneView: View {
 
     var body: some View {
         scene
+            .opacity(node.opacity ?? 1)
             .accessibilityElement(children: .combine)
     }
 
@@ -42,15 +43,32 @@ struct RiceSceneView: View {
                 }
             }
         case "text":
-            Text(node.text ?? "").font(.system(size: (node.fontSize ?? 18) * typeScale, weight: .medium)).foregroundStyle(color(node.token)).lineLimit(3).minimumScaleFactor(0.7)
+            if node.textAlignment == nil {
+                Text(node.text ?? "")
+                    .font(.system(size: (node.fontSize ?? 18) * typeScale, weight: .medium, design: fontDesign))
+                    .foregroundStyle(color(node.token))
+                    .lineLimit(3).minimumScaleFactor(0.7)
+            } else {
+                Text(node.text ?? "")
+                    .font(.system(size: (node.fontSize ?? 18) * typeScale, weight: .medium, design: fontDesign))
+                    .foregroundStyle(color(node.token))
+                    .multilineTextAlignment(textAlignment)
+                    .frame(maxWidth: .infinity, alignment: frameAlignment)
+                    .lineLimit(3).minimumScaleFactor(0.7)
+            }
         case "clock":
             if node.text == "time" {
-                Text(Date.now, style: .time).font(.system(size: (node.fontSize ?? 32) * typeScale, weight: .semibold, design: .rounded)).foregroundStyle(color(node.token)).lineLimit(1).minimumScaleFactor(0.6)
+                Text(Date.now, style: .time).font(.system(size: (node.fontSize ?? 32) * typeScale, weight: .semibold, design: fontDesign)).foregroundStyle(color(node.token)).lineLimit(1).minimumScaleFactor(0.6)
             } else if node.text == "weekday" {
-                Text(Date.now, format: .dateTime.weekday(.wide)).font(.system(size: (node.fontSize ?? 16) * typeScale)).foregroundStyle(color(node.token)).lineLimit(1).minimumScaleFactor(0.6)
+                Text(Date.now, format: .dateTime.weekday(.wide)).font(.system(size: (node.fontSize ?? 16) * typeScale, design: fontDesign)).foregroundStyle(color(node.token)).lineLimit(1).minimumScaleFactor(0.6)
             } else {
-                Text(Date.now, style: .date).font(.system(size: (node.fontSize ?? 16) * typeScale)).foregroundStyle(color(node.token)).lineLimit(1).minimumScaleFactor(0.6)
+                Text(Date.now, style: .date).font(.system(size: (node.fontSize ?? 16) * typeScale, design: fontDesign)).foregroundStyle(color(node.token)).lineLimit(1).minimumScaleFactor(0.6)
             }
+        case "symbol":
+            Image(systemName: node.text ?? "star.fill")
+                .font(.system(size: (node.fontSize ?? 40) * typeScale))
+                .foregroundStyle(color(node.token))
+                .accessibilityLabel(node.text?.replacingOccurrences(of: ".fill", with: "").replacingOccurrences(of: ".", with: " ") ?? "Symbol")
         case "shape":
             RoundedRectangle(cornerRadius: node.radius ?? 8).fill(color(node.token)).frame(minHeight: 12)
         case "gradient":
@@ -68,6 +86,31 @@ struct RiceSceneView: View {
 
     private func color(_ key: String?) -> Color {
         Color(hex: theme.tokens[key ?? "foreground"] ?? "#FFFFFF") ?? .white
+    }
+
+    private var fontDesign: Font.Design {
+        switch node.fontDesign {
+        case "rounded": .rounded
+        case "serif": .serif
+        case "monospaced": .monospaced
+        default: node.type == "clock" && node.text == "time" ? .rounded : .default
+        }
+    }
+
+    private var textAlignment: TextAlignment {
+        switch node.textAlignment {
+        case "center": .center
+        case "trailing": .trailing
+        default: .leading
+        }
+    }
+
+    private var frameAlignment: Alignment {
+        switch node.textAlignment {
+        case "center": .center
+        case "trailing": .trailing
+        default: .leading
+        }
     }
 }
 

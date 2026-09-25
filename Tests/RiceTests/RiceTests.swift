@@ -76,6 +76,73 @@ final class RiceTests: XCTestCase {
         XCTAssertEqual(try store.files(for: loaded)[saved.assets[0].path], files[saved.assets[0].path])
     }
 
+    func testLocalThemesMigrateToSharedStorageWithArtwork() throws {
+        let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let local = RiceStore(root: root.appending(path: "local"))
+        let shared = RiceStore(root: root.appending(path: "shared"))
+        let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "valid-image", withExtension: "ricepack"))
+        let pack = try RicePack.read(Data(contentsOf: url))
+        try local.install(pack.manifest, files: pack.files)
+        var state = try local.read()
+        state.activeThemeID = pack.manifest.id
+        try local.write(state)
+
+        XCTAssertTrue(try shared.migrateIfEmpty(from: local))
+        XCTAssertEqual(try shared.read().activeThemeID, pack.manifest.id)
+        XCTAssertEqual(try shared.files(for: pack.manifest)[pack.manifest.assets[0].path], pack.files[pack.manifest.assets[0].path])
+        XCTAssertFalse(try shared.migrateIfEmpty(from: local))
+    }
+
+    func testNewSharedStoreGetsInitialTheme() throws {
+        let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = RiceStore(root: root)
+        XCTAssertFalse(store.hasSavedState)
+        try store.initializeIfNeeded()
+        XCTAssertTrue(store.hasSavedState)
+        XCTAssertEqual(try store.read().activeThemeID, RicePresets.all[0].id)
+        var changed = try store.read()
+        changed.activeThemeID = RicePresets.all[1].id
+        try store.write(changed)
+        try store.initializeIfNeeded()
+        XCTAssertEqual(try store.read().activeThemeID, RicePresets.all[1].id)
+    }
+
+    func testWidgetReadsActivatedSlotFromSharedState() throws {
+        let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = RiceStore(root: root)
+        var state = RiceStore.initialState()
+        let chosen = RicePresets.all[1]
+        state.activeThemeID = chosen.id
+        state.slots[0].themeID = chosen.id
+        state.slots[0].componentID = chosen.slots[0].component
+        try store.write(state)
+
+        let readStart = Date.now
+        let content = try store.widgetContent(slotID: "main-clock")
+        XCTAssertEqual(content.theme.id, chosen.id)
+        XCTAssertEqual(content.component.id, chosen.slots[0].component)
+        XCTAssertGreaterThanOrEqual(try XCTUnwrap(store.lastWidgetRead()), readStart)
+        XCTAssertThrowsError(try store.widgetContent(slotID: "unknown"))
+    }
+
+    func testSymbolStyleRoundTripAndRejectsInvalidValues() throws {
+        var theme = RicePresets.all[0]
+        theme.components[0].root = RiceNode(type: "canvas", children: [
+            RiceNode(type: "symbol", text: "star.fill", token: "accent", fontSize: 42, opacity: 0.65, x: 0.5, y: 0.5, width: 0.3, height: 0.3),
+            RiceNode(type: "text", text: "A note", fontDesign: "serif", textAlignment: "center")
+        ])
+        try RiceValidator.validate(theme)
+        XCTAssertEqual(try RicePack.read(RicePack.builtIn(theme).archive()).manifest, theme)
+        theme.components[0].root.children?[0].text = "not.a.real.symbol"
+        XCTAssertThrowsError(try RiceValidator.validate(theme))
+        theme.components[0].root.children?[0].text = "star.fill"
+        theme.components[0].root.children?[0].opacity = 1.5
+        XCTAssertThrowsError(try RiceValidator.validate(theme))
+    }
+
     func testCanvasRejectsOffscreenPosition() throws {
         var theme = RicePresets.all[0]
         theme.components[0].root = RiceNode(type: "canvas", children: [

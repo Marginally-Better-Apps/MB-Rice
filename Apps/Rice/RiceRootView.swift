@@ -61,6 +61,16 @@ struct RiceRootView: View {
 
     private var library: some View {
         List {
+            if !model.appGroupAvailable {
+                Section {
+                    NavigationLink {
+                        widgetHelp
+                    } label: {
+                        Label("Home Screen widgets need attention", systemImage: "exclamationmark.triangle")
+                            .foregroundStyle(.orange)
+                    }
+                }
+            }
             Section("Current widgets") {
                 if let component = model.activeTheme.components.first {
                     RiceComponentView(component: component, theme: model.activeTheme,
@@ -92,6 +102,7 @@ struct RiceRootView: View {
         }
         .listStyle(.plain)
         .navigationTitle("Library")
+        .onAppear { model.refreshWidgetStatus() }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
@@ -181,9 +192,9 @@ struct RiceRootView: View {
 
     private var saveBar: some View {
         HStack(spacing: 12) {
-            Button("Save theme") { saveCurrentTheme() }
+            Button("Save to Library") { saveCurrentTheme() }
                 .buttonStyle(.bordered)
-            Button("Use for widgets") { model.applyDraft() }
+            Button("Update widgets") { model.applyDraft() }
                 .buttonStyle(.borderedProminent)
         }
         .frame(maxWidth: .infinity)
@@ -236,13 +247,20 @@ struct RiceRootView: View {
                                     Text("Weekday").tag("weekday")
                                 }
                             }
-                            if ["text", "clock", "shape", "gradient"].contains(node.type) {
+                            if node.type == "symbol" {
+                                Picker("Symbol", selection: nodeTextBinding(index)) {
+                                    ForEach(RiceValidator.symbols, id: \.self) { symbol in
+                                        Label(symbol.replacingOccurrences(of: ".fill", with: "").replacingOccurrences(of: ".", with: " ").capitalized, systemImage: symbol).tag(symbol)
+                                    }
+                                }
+                            }
+                            if ["text", "clock", "shape", "gradient", "symbol"].contains(node.type) {
                                 Picker("Color", selection: nodeTokenBinding(index)) {
                                     ForEach(model.draftTheme.tokens.keys.sorted(), id: \.self) { key in Text(key.capitalized).tag(key) }
                                 }
                             }
-                            if ["text", "clock"].contains(node.type) {
-                                LabeledContent("Text size", value: "\(Int(node.fontSize ?? 20))")
+                            if ["text", "clock", "symbol"].contains(node.type) {
+                                LabeledContent(node.type == "symbol" ? "Symbol size" : "Text size", value: "\(Int(node.fontSize ?? 20))")
                                 Slider(value: nodeNumberBinding(index, \.fontSize, fallback: 20), in: 8...120)
                             }
                             if node.type == "shape" {
@@ -262,6 +280,27 @@ struct RiceRootView: View {
                                 Slider(value: nodeNumberBinding(index, \.height, fallback: 0.2), in: 0.05...1)
                                 Button("Bring forward") { model.reorderElement(componentID: component.id, index: index, direction: 1); selectedElement = min(index + 1, (studioComponent?.root.children?.count ?? 1) - 1) }
                                 Button("Send backward") { model.reorderElement(componentID: component.id, index: index, direction: -1); selectedElement = max(index - 1, 0) }
+                            }
+                        }
+                        Section {
+                            DisclosureGroup("Appearance") {
+                                if ["text", "clock"].contains(node.type) {
+                                    Picker("Font", selection: nodeStringBinding(index, \.fontDesign, fallback: "default")) {
+                                        Text("Default").tag("default")
+                                        Text("Rounded").tag("rounded")
+                                        Text("Serif").tag("serif")
+                                        Text("Monospaced").tag("monospaced")
+                                    }
+                                }
+                                if node.type == "text" {
+                                    Picker("Alignment", selection: nodeStringBinding(index, \.textAlignment, fallback: "leading")) {
+                                        Text("Left").tag("leading")
+                                        Text("Center").tag("center")
+                                        Text("Right").tag("trailing")
+                                    }
+                                }
+                                LabeledContent("Opacity", value: "\(Int((node.opacity ?? 1) * 100))%")
+                                Slider(value: nodeNumberBinding(index, \.opacity, fallback: 1), in: 0...1)
                             }
                         }
                     } else {
@@ -288,6 +327,8 @@ struct RiceRootView: View {
                     Button("Text", systemImage: "textformat") { addElement("text") }
                     Button("Clock", systemImage: "clock") { addElement("clock") }
                     Button("Shape", systemImage: "square.fill") { addElement("shape") }
+                    Button("Symbol", systemImage: "star.fill") { addElement("symbol") }
+                    Button("Gradient", systemImage: "circle.lefthalf.filled") { addElement("gradient") }
                     PhotosPicker(selection: $selectedWidgetPhoto, matching: .images) {
                         Label("Photo", systemImage: "photo")
                     }
@@ -336,6 +377,13 @@ struct RiceRootView: View {
     }
 
     private func nodeNumberBinding(_ index: Int, _ key: WritableKeyPath<RiceNode, Double?>, fallback: Double) -> Binding<Double> {
+        Binding(get: { selectedNode?[keyPath: key] ?? fallback }, set: { value in
+            guard let id = studioComponent?.id else { return }
+            model.editNode(componentID: id, path: [index]) { $0[keyPath: key] = value }
+        })
+    }
+
+    private func nodeStringBinding(_ index: Int, _ key: WritableKeyPath<RiceNode, String?>, fallback: String) -> Binding<String> {
         Binding(get: { selectedNode?[keyPath: key] ?? fallback }, set: { value in
             guard let id = studioComponent?.id else { return }
             model.editNode(componentID: id, path: [index]) { $0[keyPath: key] = value }
@@ -415,9 +463,20 @@ struct RiceRootView: View {
 
     private var setup: some View {
         List {
+            Section("Widget status") {
+                NavigationLink {
+                    widgetHelp
+                } label: {
+                    HStack {
+                        Text(widgetStatusTitle)
+                        Spacer()
+                        Image(systemName: model.appGroupAvailable && (model.placedWidgetCount ?? 0) > 0 ? "checkmark.circle.fill" : "exclamationmark.circle")
+                            .foregroundStyle(model.appGroupAvailable && (model.placedWidgetCount ?? 0) > 0 ? .green : .orange)
+                    }
+                }
+            }
             Section("Widget theme") { Text(model.activeTheme.name) }
             Section("On your iPhone") {
-                setupRow("widget", title: "Add a widget", detail: "Touch and hold the Home Screen. Tap Edit, then Add Widget. Choose Rice and pick a widget.")
                 setupRow("wallpaper", title: "Set wallpaper", detail: "Export your wallpaper in Create. Save the image, then open Settings and choose Wallpaper.")
                 setupRow("icon", title: "Make an app shortcut", detail: "Export your icon in Create. In Shortcuts, create an Open App shortcut and add it to the Home Screen using your icon image.")
             }
@@ -427,6 +486,42 @@ struct RiceRootView: View {
         }
         .listStyle(.plain)
         .navigationTitle("Set Up")
+        .onAppear { model.refreshWidgetStatus() }
+    }
+
+    private var widgetStatusTitle: String {
+        if !model.appGroupAvailable { return "Widget updates unavailable" }
+        if model.placedWidgetCount == 0 { return "Add a Rice widget" }
+        if model.placedWidgetCount == nil { return "Checking widgets" }
+        return "\(model.placedWidgetCount ?? 0) Rice widget\((model.placedWidgetCount ?? 0) == 1 ? "" : "s") added"
+    }
+
+    private var widgetHelp: some View {
+        List {
+            Section {
+                Text(widgetStatusTitle).font(.headline)
+                if !model.appGroupAvailable {
+                    Text("This installation cannot send changes to a placed Rice widget. Installing the same file again will not fix widget sharing.")
+                    Text("For an Autoloader install, the signing profile must allow Rice and its widget extension to share data. You can still edit and export themes here.")
+                } else if model.placedWidgetCount == 0 {
+                    Text("Touch and hold the Home Screen, tap Edit, then Add Widget. Find Rice, choose a size, and tap Add Widget.")
+                } else {
+                    Text("Your Rice widget is placed. Edit a theme, then tap Update widgets to use it.")
+                    if let requested = model.state.lastRefreshRequested {
+                        LabeledContent("Update requested", value: requested.formatted(date: .omitted, time: .shortened))
+                    }
+                    if let read = model.lastWidgetRead {
+                        LabeledContent("Widget read", value: read.formatted(date: .omitted, time: .shortened))
+                    } else {
+                        Text("No widget read yet. If the Home Screen stays unchanged, check that Autoloader's signing profile grants the App Group to Rice and Rice Widgets.")
+                    }
+                }
+                Button("Check again") { model.refreshWidgetStatus() }
+            }
+        }
+        .listStyle(.plain)
+        .navigationTitle("Rice Widgets")
+        .onAppear { model.refreshWidgetStatus() }
     }
 
     private func setupRow(_ id: String, title: String, detail: String) -> some View {
@@ -484,11 +579,13 @@ struct RiceRootView: View {
     private var diagnostics: some View {
         List {
             LabeledContent("Shared widget storage", value: model.appGroupAvailable ? "Available" : "Unavailable")
+            LabeledContent("Placed Rice widgets", value: model.placedWidgetCount.map(String.init) ?? "Unknown")
             LabeledContent("Last refresh request", value: model.state.lastRefreshRequested?.formatted() ?? "None")
-            LabeledContent("Last widget read", value: ((try? RiceStore.shared().lastWidgetRead()) ?? nil)?.formatted() ?? "None")
+            LabeledContent("Last widget read", value: model.lastWidgetRead?.formatted() ?? "None")
             Button("Export diagnostics", systemImage: "square.and.arrow.up") { model.exportDiagnostics() }
         }
         .navigationTitle("Diagnostics")
+        .onAppear { model.refreshWidgetStatus() }
     }
 
     private var importPreview: some View {

@@ -43,18 +43,24 @@ struct RiceProvider: AppIntentTimelineProvider {
         Timeline(entries: [load(configuration.slot?.id)], policy: .after(Date.now.addingTimeInterval(3600)))
     }
     private func load(_ slotID: String?) -> RiceEntry {
-        guard let store = try? RiceStore.shared(), let state = try? store.read(),
-              let slot = state.slots.first(where: { $0.id == (slotID ?? "main-clock") }),
-              let theme = state.themes.first(where: { $0.id == slot.themeID }),
-              let component = theme.components.first(where: { $0.id == slot.componentID }) else { return fallback() }
-        store.recordWidgetRead(.now)
-        let images = RiceImages.load(component: component, theme: theme) { asset in
-            try? Data(contentsOf: store.assetURL(themeID: theme.id, path: asset.path))
+        guard let store = try? RiceStore.shared(),
+              let content = try? store.widgetContent(slotID: slotID ?? "main-clock") else { return setupNeeded() }
+        let images = RiceImages.load(component: content.component, theme: content.theme) { asset in
+            try? Data(contentsOf: store.assetURL(themeID: content.theme.id, path: asset.path))
         }
-        return RiceEntry(date: .now, theme: theme, component: component, images: images)
+        return RiceEntry(date: .now, theme: content.theme, component: content.component, images: images)
     }
     private func fallback() -> RiceEntry {
         let theme = RicePresets.all[0]
+        return RiceEntry(date: .now, theme: theme, component: theme.components[0], images: [:])
+    }
+
+    private func setupNeeded() -> RiceEntry {
+        var theme = RicePresets.all[0]
+        theme.components[0].root = RiceNode(type: "stack", axis: "vertical", spacing: 6, children: [
+            RiceNode(type: "text", text: "Open Rice", token: "foreground", fontSize: 20),
+            RiceNode(type: "text", text: "Finish widget setup", token: "accent", fontSize: 14)
+        ])
         return RiceEntry(date: .now, theme: theme, component: theme.components[0], images: [:])
     }
 }

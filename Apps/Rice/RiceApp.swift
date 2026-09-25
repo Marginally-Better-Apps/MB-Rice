@@ -29,6 +29,8 @@ struct ShareSheet: UIViewControllerRepresentable {
     @Published var pendingImport: RicePack?
     @Published var shareItem: ShareItem?
     @Published var appGroupAvailable: Bool
+    @Published var placedWidgetCount: Int?
+    @Published var lastWidgetRead: Date?
     @Published var wallpaperPattern: RicePattern
     @Published var wallpaperPhoto: UIImage?
     @Published var previewImages: [String: [String: UIImage]] = [:]
@@ -41,12 +43,21 @@ struct ShareSheet: UIViewControllerRepresentable {
     private let store: RiceStore
 
     init() {
+        let local = RiceStore.localApp()
         let shared = try? RiceStore.shared()
-        appGroupAvailable = shared != nil
-        store = shared ?? RiceStore.localApp()
+        if let shared, (try? shared.migrateIfEmpty(from: local)) != nil,
+           (try? shared.initializeIfNeeded()) != nil {
+            store = shared
+            appGroupAvailable = true
+        } else {
+            store = local
+            appGroupAvailable = false
+        }
         let loadedState = (try? store.read()) ?? RiceStore.initialState()
         state = loadedState
         draftTheme = loadedState.themes.first(where: { $0.id == loadedState.activeThemeID }) ?? RicePresets.all[0]
+        placedWidgetCount = nil
+        lastWidgetRead = store.lastWidgetRead()
         wallpaperPattern = RicePattern(rawValue: UserDefaults.standard.string(forKey: "wallpaperPattern") ?? "Rings") ?? .rings
         focalX = UserDefaults.standard.object(forKey: "focalX") as? Double ?? 0.5
         focalY = UserDefaults.standard.object(forKey: "focalY") as? Double ?? 0.5
@@ -54,6 +65,7 @@ struct ShareSheet: UIViewControllerRepresentable {
         if let first = draftTheme.components.first {
             loadPreviewImages(for: first)
         }
+        refreshWidgetStatus()
     }
 
     var activeTheme: RiceManifest { state.themes.first(where: { $0.id == state.activeThemeID }) ?? RicePresets.all[0] }
@@ -63,14 +75,34 @@ struct ShareSheet: UIViewControllerRepresentable {
     var canUndo: Bool { !undoStack.isEmpty }
     var canRedo: Bool { !redoStack.isEmpty }
 
-    func save() {
-        state.lastRefreshRequested = .now
-        do { try store.write(state) } catch { self.error = error.localizedDescription }
-        WidgetCenter.shared.reloadTimelines(ofKind: "RiceSlotWidget")
+    @discardableResult func save() -> Bool {
+        let previousRefresh = state.lastRefreshRequested
+        if appGroupAvailable { state.lastRefreshRequested = .now }
+        do { try store.write(state) }
+        catch {
+            state.lastRefreshRequested = previousRefresh
+            self.error = error.localizedDescription
+            return false
+        }
+        if appGroupAvailable { WidgetCenter.shared.reloadTimelines(ofKind: "RiceSlotWidget") }
+        refreshWidgetStatus()
+        return true
+    }
+
+    func refreshWidgetStatus() {
+        lastWidgetRead = store.lastWidgetRead()
+        WidgetCenter.shared.getCurrentConfigurations { [weak self] result in
+            let count = try? result.get().filter { $0.kind == "RiceSlotWidget" }.count
+            Task { @MainActor [weak self] in
+                self?.placedWidgetCount = count
+                self?.lastWidgetRead = self?.store.lastWidgetRead()
+            }
+        }
     }
 
     func activate(_ id: String) {
         guard state.themes.contains(where: { $0.id == id }) else { return }
+        let previous = state
         state.activeThemeID = id
         let theme = activeTheme
         for index in state.slots.indices where !state.slots[index].pinned {
@@ -79,7 +111,10 @@ struct ShareSheet: UIViewControllerRepresentable {
                 state.slots[index].componentID = suggested.component
             }
         }
-        save()
+        if !save() { state = previous; return }
+        if !appGroupAvailable {
+            error = "Your theme is saved, but this installation cannot update Home Screen widgets. Open Set Up to see what needs fixing."
+        }
     }
 
     func editToken(_ key: String, color: Color) {
@@ -175,8 +210,9 @@ struct ShareSheet: UIViewControllerRepresentable {
                 try RiceValidator.validate(theme)
                 try store.writeFiles(themeID: theme.id, files: draftAssetFiles)
                 guard let index = state.themes.firstIndex(where: { $0.id == theme.id }) else { return }
+                let previous = state
                 state.themes[index] = theme
-                save()
+                guard save() else { state = previous; return }
             }
             draftTheme = theme
             draftAssetFiles.removeAll()
@@ -184,12 +220,10 @@ struct ShareSheet: UIViewControllerRepresentable {
     }
 
     func applyDraft() {
-        if state.themes.first(where: { $0.id == draftTheme.id }) == draftTheme {
-            activate(draftTheme.id)
-            return
+        if state.themes.first(where: { $0.id == draftTheme.id }) != draftTheme {
+            if !draftIsSaved { saveDraft() }
+            guard draftIsSaved else { return }
         }
-        if !draftIsSaved { saveDraft() }
-        guard draftIsSaved else { return }
         activate(draftTheme.id)
     }
 
@@ -252,6 +286,8 @@ struct ShareSheet: UIViewControllerRepresentable {
             if type == "text" { node.text = "Your text"; node.fontSize = 24 }
             if type == "clock" { node.text = "time"; node.fontSize = 40; node.width = 0.72 }
             if type == "shape" { node.token = "accent"; node.radius = 16; node.height = 0.18 }
+            if type == "symbol" { node.text = "star.fill"; node.token = "accent"; node.fontSize = 44; node.width = 0.3; node.height = 0.28 }
+            if type == "gradient" { node.token = "accent"; node.width = 0.7; node.height = 0.5 }
             root.children = (root.children ?? []) + [node]
         }
     }

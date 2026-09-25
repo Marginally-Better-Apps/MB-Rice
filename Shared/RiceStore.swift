@@ -2,7 +2,18 @@ import Foundation
 
 enum RiceStorageError: Error, LocalizedError {
     case unavailable
-    var errorDescription: String? { "Shared storage is unavailable. Check App Group signing." }
+    case missingWidgetContent
+    var errorDescription: String? {
+        switch self {
+        case .unavailable: "Shared storage is unavailable. Check App Group signing."
+        case .missingWidgetContent: "This widget slot has no saved theme."
+        }
+    }
+}
+
+struct RiceWidgetContent {
+    let theme: RiceManifest
+    let component: RiceComponent
 }
 
 struct RiceStore {
@@ -21,15 +32,43 @@ struct RiceStore {
     private var stateURL: URL { root.appending(path: "state.json") }
     private var widgetReadURL: URL { root.appending(path: "widget-read.txt") }
 
+    var hasSavedState: Bool { FileManager.default.fileExists(atPath: stateURL.path) }
+
+    func initializeIfNeeded() throws {
+        if !hasSavedState { try write(Self.initialState()) }
+    }
+
     func read() throws -> RiceState {
         guard FileManager.default.fileExists(atPath: stateURL.path) else { return Self.initialState() }
         return try JSONDecoder().decode(RiceState.self, from: Data(contentsOf: stateURL))
+    }
+
+    func widgetContent(slotID: String) throws -> RiceWidgetContent {
+        let state = try read()
+        guard let slot = state.slots.first(where: { $0.id == slotID }),
+              let theme = state.themes.first(where: { $0.id == slot.themeID }),
+              let component = theme.components.first(where: { $0.id == slot.componentID })
+        else { throw RiceStorageError.missingWidgetContent }
+        recordWidgetRead(.now)
+        return RiceWidgetContent(theme: theme, component: component)
     }
 
     func write(_ state: RiceState) throws {
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         let data = try JSONEncoder().encode(state)
         try data.write(to: stateURL, options: .atomic)
+    }
+
+    @discardableResult
+    func migrateIfEmpty(from previous: RiceStore) throws -> Bool {
+        guard !hasSavedState, previous.hasSavedState else { return false }
+        let previousState = try previous.read()
+        for theme in previousState.themes where !RicePresets.all.contains(where: { $0.id == theme.id }) {
+            try RiceValidator.validate(theme)
+            try writeFiles(themeID: theme.id, files: previous.files(for: theme))
+        }
+        try write(previousState)
+        return true
     }
 
     func recordWidgetRead(_ date: Date) {

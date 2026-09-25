@@ -29,6 +29,9 @@ struct RiceNode: Codable, Equatable {
     var alignment: String? = nil
     var spacing: Double? = nil
     var fontSize: Double? = nil
+    var fontDesign: String? = nil
+    var textAlignment: String? = nil
+    var opacity: Double? = nil
     var radius: Double? = nil
     var x: Double? = nil
     var y: Double? = nil
@@ -76,6 +79,8 @@ enum RiceValidationError: Error, LocalizedError {
 }
 
 enum RiceValidator {
+    static let symbols = ["heart.fill", "star.fill", "sun.max.fill", "moon.stars.fill", "cloud.fill", "leaf.fill", "sparkles", "bolt.fill", "music.note", "figure.walk", "cup.and.saucer.fill", "book.fill", "checkmark.circle.fill", "flame.fill", "drop.fill", "gift.fill"]
+
     static func validate(_ theme: RiceManifest) throws {
         guard theme.schemaVersion == 1 else { throw RiceValidationError.invalid("Unsupported schema version") }
         guard validID(theme.id), (1...80).contains(theme.name.count), (1...80).contains(theme.author.count) else { throw RiceValidationError.invalid("Invalid theme identity") }
@@ -116,9 +121,12 @@ enum RiceValidator {
     private static func validateNode(_ node: RiceNode, theme: RiceManifest, depth: Int, count: inout Int) throws {
         count += 1
         guard depth < RiceLimits.depth, count <= RiceLimits.nodes else { throw RiceValidationError.invalid("Scene is too large") }
-        guard ["stack", "canvas", "text", "clock", "shape", "gradient", "image", "spacer"].contains(node.type),
+        guard ["stack", "canvas", "text", "clock", "shape", "gradient", "image", "spacer", "symbol"].contains(node.type),
               node.token.map({ theme.tokens[$0] != nil }) ?? true,
               node.asset.map({ id in theme.assets.contains(where: { $0.id == id }) }) ?? true,
+              node.fontDesign.map({ ["default", "rounded", "serif", "monospaced"].contains($0) }) ?? true,
+              node.textAlignment.map({ ["leading", "center", "trailing"].contains($0) }) ?? true,
+              (node.opacity ?? 1).isFinite, (0...1).contains(node.opacity ?? 1),
               (node.spacing ?? 0).isFinite, (0...80).contains(node.spacing ?? 0),
               (node.fontSize ?? 20).isFinite, (8...120).contains(node.fontSize ?? 20),
               (node.radius ?? 0).isFinite, (0...100).contains(node.radius ?? 0),
@@ -132,6 +140,7 @@ enum RiceValidator {
         case "canvas": guard (node.children?.count ?? 0) <= 32 else { throw RiceValidationError.invalid("Too many canvas elements") }
         case "text": guard let text = node.text, text.count <= 500 else { throw RiceValidationError.invalid("Invalid text") }
         case "clock": guard ["time", "date", "weekday"].contains(node.text ?? "") else { throw RiceValidationError.invalid("Invalid clock") }
+        case "symbol": guard symbols.contains(node.text ?? "") else { throw RiceValidationError.invalid("Invalid symbol") }
         case "image": guard node.asset != nil else { throw RiceValidationError.invalid("Image asset missing") }
         default: break
         }

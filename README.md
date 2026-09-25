@@ -8,11 +8,11 @@ This repository is an early development build. It is not a release candidate. Th
 
 - Eight original built-in color themes and two declarative widget components per theme.
 - A Library with saved themes, imported themes, and built-in templates. Create keeps widget, wallpaper, and icon tools in separate screens.
-- A widget canvas with a fixed preview. Add, select, drag, resize, reorder, and remove text, clocks, shapes, and local photos. Widget colors and detailed sizing controls fold away when unused. Edits can be saved to the Library and loaded later.
+- A widget canvas with a fixed preview. Add, select, drag, resize, reorder, and remove text, clocks, symbols, shapes, gradients, and local photos. Text has font and alignment choices; elements have opacity controls. Detailed controls fold away when unused. Edits can be saved to the Library and loaded later.
 - Local `.ricepack` review, import and export. The current importer accepts uncompressed ZIP entries only.
 - Three original importable [sample packs](examples/) are included for format testing and remixing.
 - A WidgetKit extension with Home Screen small, medium and large families plus Lock Screen rectangular accessory. Widgets refer to stable slot IDs and read the app's App Group state.
-- A setup checklist that records user-reported progress, with separate widget refresh request and extension read timestamps.
+- A widget status screen that checks placed Rice widgets and shared storage, with separate widget refresh request and extension read timestamps. The app copies themes from its older local storage when a properly signed installation gains App Group access.
 - Four procedural wallpaper styles, local photo selection with focal-point controls, and PNG wallpaper and icon exports. Wallpaper photos stay in app storage and are excluded from theme packs; widget photos are included in saved and exported themes. iOS applies wallpaper and Shortcuts launchers through its own UI.
 - Local diagnostic inspection and user-triggered JSON export.
 
@@ -29,7 +29,7 @@ xcodebuild -project Rice.xcodeproj -scheme Rice -configuration Debug -sdk iphone
 
 The project sets `IPHONEOS_DEPLOYMENT_TARGET=27.0`. With the installed iOS 26.5 SDK, Xcode warns that this target exceeds the SDK. To run the current code in an iOS 26.5 simulator, temporarily change the target in `project.yml` to 26.5 and regenerate. Restore 27.0 before committing. App Group widget sharing on a physical iPhone requires matching signed entitlements for the app and extension.
 
-The unsigned device IPA is built from a Release `iphoneos` build by placing `Rice.app` in a `Payload` directory and zipping it. See [build notes](docs/BUILD.md). Unsigned does not mean installable without a signing workflow.
+The unsigned device IPA is built from a Release `iphoneos` build by placing `Rice.app` in a `Payload` directory and zipping it. See [build notes](docs/BUILD.md). Autoloader signs the IPA on the device. Its signing profile must allow the same App Group for Rice and the widget extension, or Home Screen updates cannot reach the widget. Reinstalling the same IPA with the same profile cannot grant a missing App Group. Check Settings → Diagnostics → Shared widget storage after installation.
 
 ## Format
 
