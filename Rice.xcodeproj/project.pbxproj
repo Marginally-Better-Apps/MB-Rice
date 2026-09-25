@@ -1,0 +1,634 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0D83FA1D2619092F224B5CBD /* RiceWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 643D7E34AEFAC2F43DBD0587 /* RiceWidgets.swift */; };
+		243D0DD5E8599B1E0498F696 /* RiceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13DFE17F79398C78B851CD2 /* RiceStore.swift */; };
+		3018A5034227D2E5A91ED315 /* RiceArtwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FD69A4C7F6A48482D839D20 /* RiceArtwork.swift */; };
+		413EBF3A7E1C9AF3CAAE4C5D /* RiceRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06EEF6DDDDA984CB53A6CA8E /* RiceRootView.swift */; };
+		44EEFEC1D6B6FBB21673AA48 /* RiceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F62BA578772277D5EFE187C9 /* RiceModel.swift */; };
+		4B7ECF1AC6A7FE5BE2265925 /* RicePresets.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6ACE71988B43B34B647C77D /* RicePresets.swift */; };
+		5EA6BF19C26339C0FEFEDA49 /* RiceRendering.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5A52F852A2234BDADEE4D3B /* RiceRendering.swift */; };
+		619C59867206D55406F2C9D1 /* RiceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13DFE17F79398C78B851CD2 /* RiceStore.swift */; };
+		6BB134972AEE7DF89A324AAD /* RiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66DA58423422C83147DD926F /* RiceTests.swift */; };
+		6E013AB359950B4A6BC360A3 /* dusk-sample.ricepack in Resources */ = {isa = PBXBuildFile; fileRef = BC876291CFFFE8C3E570F189 /* dusk-sample.ricepack */; };
+		8667A8E89559C60F42BD1003 /* RicePack.swift in Sources */ = {isa = PBXBuildFile; fileRef = D79141EFB641680CC471C974 /* RicePack.swift */; };
+		87F4D9F5A98B978619853D0C /* RiceApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E32EF7A803E81DD6F0608D0 /* RiceApp.swift */; };
+		924E5A7A6E4F3B72C7D5DBA4 /* RiceWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3B9A128E4D45BD140FC2CA4B /* RiceWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		97FAF196CC9CABD57828727F /* RicePack.swift in Sources */ = {isa = PBXBuildFile; fileRef = D79141EFB641680CC471C974 /* RicePack.swift */; };
+		98E63594108B3B9F5F4308B1 /* paper-sample.ricepack in Resources */ = {isa = PBXBuildFile; fileRef = 01325FB937F56FFFEFCA4243 /* paper-sample.ricepack */; };
+		9A56D2B3074D41237D7FF0B7 /* StrictJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37082F41E5B4FFB3C1CFBF73 /* StrictJSON.swift */; };
+		A4A329C9F81E3BF25B874766 /* RiceRendering.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5A52F852A2234BDADEE4D3B /* RiceRendering.swift */; };
+		AC4F3E1883F63B274299C48E /* StrictJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37082F41E5B4FFB3C1CFBF73 /* StrictJSON.swift */; };
+		B0B6534F860CE77CB926172F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 727A8673B29E7604E4A5C751 /* Assets.xcassets */; };
+		C202B012E036D609158E9C32 /* RiceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F62BA578772277D5EFE187C9 /* RiceModel.swift */; };
+		FD4C1FFE0961A152224E2000 /* RicePresets.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6ACE71988B43B34B647C77D /* RicePresets.swift */; };
+		FDDE016BB16510A06944615C /* geometry-sample.ricepack in Resources */ = {isa = PBXBuildFile; fileRef = F28F1E03CB59CADC079CFF2C /* geometry-sample.ricepack */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		29D2B270FD7F4AC80F83F018 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B89DFFEA117C1F1AAD7D664B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 80E9DE9125C58C8C1F224C92;
+			remoteInfo = RiceWidgets;
+		};
+		FC2014FD1E449E938463E0EB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B89DFFEA117C1F1AAD7D664B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FCD4FF79AD67F48D98C3E242;
+			remoteInfo = Rice;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		475ABFEBCE1B58F9665F55A9 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				924E5A7A6E4F3B72C7D5DBA4 /* RiceWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		01325FB937F56FFFEFCA4243 /* paper-sample.ricepack */ = {isa = PBXFileReference; path = "paper-sample.ricepack"; sourceTree = "<group>"; };
+		06EEF6DDDDA984CB53A6CA8E /* RiceRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiceRootView.swift; sourceTree = "<group>"; };
+		37082F41E5B4FFB3C1CFBF73 /* StrictJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrictJSON.swift; sourceTree = "<group>"; };
+		3B9A128E4D45BD140FC2CA4B /* RiceWidgets.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = RiceWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		5FD69A4C7F6A48482D839D20 /* RiceArtwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiceArtwork.swift; sourceTree = "<group>"; };
+		643D7E34AEFAC2F43DBD0587 /* RiceWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiceWidgets.swift; sourceTree = "<group>"; };
+		66DA58423422C83147DD926F /* RiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiceTests.swift; sourceTree = "<group>"; };
+		6B25E78FD108471C1376F097 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		6E32EF7A803E81DD6F0608D0 /* RiceApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiceApp.swift; sourceTree = "<group>"; };
+		727A8673B29E7604E4A5C751 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		782975BDB05E4B853505F28A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		864A7A0A503888F8261ECA64 /* RiceTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = RiceTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		883D43B49B934A126FDEB0C3 /* Rice.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Rice.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A5A52F852A2234BDADEE4D3B /* RiceRendering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiceRendering.swift; sourceTree = "<group>"; };
+		B13DFE17F79398C78B851CD2 /* RiceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiceStore.swift; sourceTree = "<group>"; };
+		BC876291CFFFE8C3E570F189 /* dusk-sample.ricepack */ = {isa = PBXFileReference; path = "dusk-sample.ricepack"; sourceTree = "<group>"; };
+		C6F50818FECEBCEA4AA19BDA /* Rice.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Rice.entitlements; sourceTree = "<group>"; };
+		D79141EFB641680CC471C974 /* RicePack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RicePack.swift; sourceTree = "<group>"; };
+		F28F1E03CB59CADC079CFF2C /* geometry-sample.ricepack */ = {isa = PBXFileReference; path = "geometry-sample.ricepack"; sourceTree = "<group>"; };
+		F62BA578772277D5EFE187C9 /* RiceModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiceModel.swift; sourceTree = "<group>"; };
+		F6ACE71988B43B34B647C77D /* RicePresets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RicePresets.swift; sourceTree = "<group>"; };
+		FDAC28CAC03138FFAFFDAE0A /* RiceWidgets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RiceWidgets.entitlements; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		11970D5B625C232AC3959406 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				883D43B49B934A126FDEB0C3 /* Rice.app */,
+				864A7A0A503888F8261ECA64 /* RiceTests.xctest */,
+				3B9A128E4D45BD140FC2CA4B /* RiceWidgets.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1424EE591056EA259E119AD9 /* RiceTests */ = {
+			isa = PBXGroup;
+			children = (
+				66DA58423422C83147DD926F /* RiceTests.swift */,
+			);
+			name = RiceTests;
+			path = Tests/RiceTests;
+			sourceTree = "<group>";
+		};
+		2C65A23AAEA0006D863F38F9 /* Rice */ = {
+			isa = PBXGroup;
+			children = (
+				727A8673B29E7604E4A5C751 /* Assets.xcassets */,
+				6B25E78FD108471C1376F097 /* Info.plist */,
+				C6F50818FECEBCEA4AA19BDA /* Rice.entitlements */,
+				6E32EF7A803E81DD6F0608D0 /* RiceApp.swift */,
+				5FD69A4C7F6A48482D839D20 /* RiceArtwork.swift */,
+				06EEF6DDDDA984CB53A6CA8E /* RiceRootView.swift */,
+			);
+			name = Rice;
+			path = Apps/Rice;
+			sourceTree = "<group>";
+		};
+		88068A2A23571ECC9FD039A9 = {
+			isa = PBXGroup;
+			children = (
+				E983EE083807FBB454AB3468 /* examples */,
+				2C65A23AAEA0006D863F38F9 /* Rice */,
+				1424EE591056EA259E119AD9 /* RiceTests */,
+				92DCE8CA4D47469386BCEE47 /* RiceWidgets */,
+				A300BFEF04DDCAA9DAC3337F /* Shared */,
+				11970D5B625C232AC3959406 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		92DCE8CA4D47469386BCEE47 /* RiceWidgets */ = {
+			isa = PBXGroup;
+			children = (
+				782975BDB05E4B853505F28A /* Info.plist */,
+				FDAC28CAC03138FFAFFDAE0A /* RiceWidgets.entitlements */,
+				643D7E34AEFAC2F43DBD0587 /* RiceWidgets.swift */,
+			);
+			name = RiceWidgets;
+			path = Extensions/RiceWidgets;
+			sourceTree = "<group>";
+		};
+		A300BFEF04DDCAA9DAC3337F /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				F62BA578772277D5EFE187C9 /* RiceModel.swift */,
+				D79141EFB641680CC471C974 /* RicePack.swift */,
+				F6ACE71988B43B34B647C77D /* RicePresets.swift */,
+				A5A52F852A2234BDADEE4D3B /* RiceRendering.swift */,
+				B13DFE17F79398C78B851CD2 /* RiceStore.swift */,
+				37082F41E5B4FFB3C1CFBF73 /* StrictJSON.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		E983EE083807FBB454AB3468 /* examples */ = {
+			isa = PBXGroup;
+			children = (
+				BC876291CFFFE8C3E570F189 /* dusk-sample.ricepack */,
+				F28F1E03CB59CADC079CFF2C /* geometry-sample.ricepack */,
+				01325FB937F56FFFEFCA4243 /* paper-sample.ricepack */,
+			);
+			path = examples;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		80E9DE9125C58C8C1F224C92 /* RiceWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CB50D95B88E59E77142CDE53 /* Build configuration list for PBXNativeTarget "RiceWidgets" */;
+			buildPhases = (
+				1BB59A95A2AD74BE372A1EC6 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RiceWidgets;
+			packageProductDependencies = (
+			);
+			productName = RiceWidgets;
+			productReference = 3B9A128E4D45BD140FC2CA4B /* RiceWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		8BB900EE468AC89CAD4CFF3C /* RiceTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 18A389908179803775EE48FF /* Build configuration list for PBXNativeTarget "RiceTests" */;
+			buildPhases = (
+				D3C078A2BA0C6DD06460A955 /* Sources */,
+				22E82C97A65C5E9EB140C3AE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E2765061580962917B73502C /* PBXTargetDependency */,
+			);
+			name = RiceTests;
+			packageProductDependencies = (
+			);
+			productName = RiceTests;
+			productReference = 864A7A0A503888F8261ECA64 /* RiceTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		FCD4FF79AD67F48D98C3E242 /* Rice */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B5F5A1484A341941A7BA5343 /* Build configuration list for PBXNativeTarget "Rice" */;
+			buildPhases = (
+				293C8364456C1BE7D4288A0B /* Sources */,
+				68C63D952C6DAF4E7CF7DB15 /* Resources */,
+				475ABFEBCE1B58F9665F55A9 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A17B4DA2D99F2AB30C72B461 /* PBXTargetDependency */,
+			);
+			name = Rice;
+			packageProductDependencies = (
+			);
+			productName = Rice;
+			productReference = 883D43B49B934A126FDEB0C3 /* Rice.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B89DFFEA117C1F1AAD7D664B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					80E9DE9125C58C8C1F224C92 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					8BB900EE468AC89CAD4CFF3C = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					FCD4FF79AD67F48D98C3E242 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = AED26843AB7F657B474FC02C /* Build configuration list for PBXProject "Rice" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 88068A2A23571ECC9FD039A9;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 11970D5B625C232AC3959406 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				FCD4FF79AD67F48D98C3E242 /* Rice */,
+				80E9DE9125C58C8C1F224C92 /* RiceWidgets */,
+				8BB900EE468AC89CAD4CFF3C /* RiceTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		22E82C97A65C5E9EB140C3AE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6E013AB359950B4A6BC360A3 /* dusk-sample.ricepack in Resources */,
+				FDDE016BB16510A06944615C /* geometry-sample.ricepack in Resources */,
+				98E63594108B3B9F5F4308B1 /* paper-sample.ricepack in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		68C63D952C6DAF4E7CF7DB15 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B0B6534F860CE77CB926172F /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1BB59A95A2AD74BE372A1EC6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C202B012E036D609158E9C32 /* RiceModel.swift in Sources */,
+				97FAF196CC9CABD57828727F /* RicePack.swift in Sources */,
+				4B7ECF1AC6A7FE5BE2265925 /* RicePresets.swift in Sources */,
+				A4A329C9F81E3BF25B874766 /* RiceRendering.swift in Sources */,
+				619C59867206D55406F2C9D1 /* RiceStore.swift in Sources */,
+				0D83FA1D2619092F224B5CBD /* RiceWidgets.swift in Sources */,
+				9A56D2B3074D41237D7FF0B7 /* StrictJSON.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		293C8364456C1BE7D4288A0B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				87F4D9F5A98B978619853D0C /* RiceApp.swift in Sources */,
+				3018A5034227D2E5A91ED315 /* RiceArtwork.swift in Sources */,
+				44EEFEC1D6B6FBB21673AA48 /* RiceModel.swift in Sources */,
+				8667A8E89559C60F42BD1003 /* RicePack.swift in Sources */,
+				FD4C1FFE0961A152224E2000 /* RicePresets.swift in Sources */,
+				5EA6BF19C26339C0FEFEDA49 /* RiceRendering.swift in Sources */,
+				413EBF3A7E1C9AF3CAAE4C5D /* RiceRootView.swift in Sources */,
+				243D0DD5E8599B1E0498F696 /* RiceStore.swift in Sources */,
+				AC4F3E1883F63B274299C48E /* StrictJSON.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D3C078A2BA0C6DD06460A955 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6BB134972AEE7DF89A324AAD /* RiceTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A17B4DA2D99F2AB30C72B461 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 80E9DE9125C58C8C1F224C92 /* RiceWidgets */;
+			targetProxy = 29D2B270FD7F4AC80F83F018 /* PBXContainerItemProxy */;
+		};
+		E2765061580962917B73502C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FCD4FF79AD67F48D98C3E242 /* Rice */;
+			targetProxy = FC2014FD1E449E938463E0EB /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		0AAEEC6C7016D92062BE1C63 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Apps/Rice/Rice.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = Apps/Rice/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Rice;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.marginallybetter.rice;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A16D4466A9C74D0347C75B7B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		A2921DB1749D6D0D2D585C3B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = Extensions/RiceWidgets/RiceWidgets.entitlements;
+				INFOPLIST_FILE = Extensions/RiceWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Rice Widgets";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.marginallybetter.rice.widgets;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		AC8AF76679E9DDE0B320F675 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 0.1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		E3D6780B456E4185A01A3970 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.marginallybetter.rice.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Rice.app/Rice";
+			};
+			name = Debug;
+		};
+		E7130C986775C56C524468F4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.marginallybetter.rice.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Rice.app/Rice";
+			};
+			name = Release;
+		};
+		EC1EBCB7513C231CAF98A122 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = Extensions/RiceWidgets/RiceWidgets.entitlements;
+				INFOPLIST_FILE = Extensions/RiceWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Rice Widgets";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.marginallybetter.rice.widgets;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F946235EE3998661D33EC72C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Apps/Rice/Rice.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = Apps/Rice/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Rice;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = app.marginallybetter.rice;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		18A389908179803775EE48FF /* Build configuration list for PBXNativeTarget "RiceTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E3D6780B456E4185A01A3970 /* Debug */,
+				E7130C986775C56C524468F4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		AED26843AB7F657B474FC02C /* Build configuration list for PBXProject "Rice" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A16D4466A9C74D0347C75B7B /* Debug */,
+				AC8AF76679E9DDE0B320F675 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B5F5A1484A341941A7BA5343 /* Build configuration list for PBXNativeTarget "Rice" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0AAEEC6C7016D92062BE1C63 /* Debug */,
+				F946235EE3998661D33EC72C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		CB50D95B88E59E77142CDE53 /* Build configuration list for PBXNativeTarget "RiceWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EC1EBCB7513C231CAF98A122 /* Debug */,
+				A2921DB1749D6D0D2D585C3B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = B89DFFEA117C1F1AAD7D664B /* Project object */;
+}

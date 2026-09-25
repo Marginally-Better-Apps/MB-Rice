@@ -1,0 +1,101 @@
+name: Rice
+options:
+  bundleIdPrefix: app.marginallybetter
+  deploymentTarget:
+    iOS: "27.0"
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    TARGETED_DEVICE_FAMILY: "1"
+    SUPPORTS_MACCATALYST: NO
+    GENERATE_INFOPLIST_FILE: YES
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: ""
+    SWIFT_STRICT_CONCURRENCY: complete
+    CURRENT_PROJECT_VERSION: 1
+    MARKETING_VERSION: 0.1.0
+targets:
+  Rice:
+    type: application
+    platform: iOS
+    sources:
+      - path: Apps/Rice
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.marginallybetter.rice
+        INFOPLIST_KEY_CFBundleDisplayName: Rice
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    entitlements:
+      path: Apps/Rice/Rice.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.app.marginallybetter.rice
+    info:
+      path: Apps/Rice/Info.plist
+      properties:
+        CFBundleShortVersionString: 0.1.0
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UTExportedTypeDeclarations:
+          - UTTypeIdentifier: app.marginallybetter.ricepack
+            UTTypeDescription: Rice theme pack
+            UTTypeConformsTo:
+              - public.zip-archive
+            UTTypeTagSpecification:
+              public.filename-extension:
+                - ricepack
+              public.mime-type:
+                - application/vnd.marginallybetter.ricepack+zip
+    dependencies:
+      - target: RiceWidgets
+        embed: true
+  RiceWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Extensions/RiceWidgets
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.marginallybetter.rice.widgets
+        INFOPLIST_KEY_CFBundleDisplayName: Rice Widgets
+        APPLICATION_EXTENSION_API_ONLY: YES
+        SKIP_INSTALL: YES
+    entitlements:
+      path: Extensions/RiceWidgets/RiceWidgets.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.app.marginallybetter.rice
+    info:
+      path: Extensions/RiceWidgets/Info.plist
+      properties:
+        CFBundleShortVersionString: 0.1.0
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+  RiceTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Tests/RiceTests
+      - path: examples
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.marginallybetter.rice.tests
+        GENERATE_INFOPLIST_FILE: YES
+    dependencies:
+      - target: Rice
+schemes:
+  Rice:
+    build:
+      targets:
+        Rice: all
+        RiceWidgets: all
+        RiceTests: [test]
+    test:
+      targets:
+        - RiceTests

@@ -1,0 +1,5 @@
+{
+  "status": "not_run",
+  "reason": "The iOS 27 SDK and a signed physical iPhone build are unavailable in this environment.",
+  "measurements": []
+}
