@@ -7,26 +7,45 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		041CA784D7CB18DCD40179C9 /* symlink.ricepack in Resources */ = {isa = PBXBuildFile; fileRef = 7A3A1BBECA01BB2B422ECCB0 /* symlink.ricepack */; };
+		0D00F35ABDE589FA964E8613 /* case-collision.ricepack in Resources */ = {isa = PBXBuildFile; fileRef = 75EE194719D9EF0C4006057F /* case-collision.ricepack */; };
 		0D83FA1D2619092F224B5CBD /* RiceWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 643D7E34AEFAC2F43DBD0587 /* RiceWidgets.swift */; };
+		1A683CA713F1D15A4D45E01E /* deep-tree.ricepack in Resources */ = {isa = PBXBuildFile; fileRef = 853A176F2A41BCD00B75CFB8 /* deep-tree.ricepack */; };
+		1B4A6D01007EA96FECFF0041 /* compressed.ricepack in Resources */ = {isa = PBXBuildFile; fileRef = 40957F30ECAC7AD1BCF292DF /* compressed.ricepack */; };
 		243D0DD5E8599B1E0498F696 /* RiceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13DFE17F79398C78B851CD2 /* RiceStore.swift */; };
+		25274A4CF33136B8084FE150 /* missing-license.ricepack in Resources */ = {isa = PBXBuildFile; fileRef = FBF12811F9E332258E15077B /* missing-license.ricepack */; };
+		27A22EABB7274466D31918F9 /* malformed-image.ricepack in Resources */ = {isa = PBXBuildFile; fileRef = 4C91162EC74DF504AB3537E6 /* malformed-image.ricepack */; };
 		3018A5034227D2E5A91ED315 /* RiceArtwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FD69A4C7F6A48482D839D20 /* RiceArtwork.swift */; };
+		378391F2FBD18F61A54E60B3 /* unknown-capability.ricepack in Resources */ = {isa = PBXBuildFile; fileRef = 2F4D33CCAE1F96A416026480 /* unknown-capability.ricepack */; };
+		40E6EA6870DA849B436D5168 /* fake-length.ricepack in Resources */ = {isa = PBXBuildFile; fileRef = C3EE2A78C7D966A7AAAC94B7 /* fake-length.ricepack */; };
 		413EBF3A7E1C9AF3CAAE4C5D /* RiceRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06EEF6DDDDA984CB53A6CA8E /* RiceRootView.swift */; };
 		44EEFEC1D6B6FBB21673AA48 /* RiceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F62BA578772277D5EFE187C9 /* RiceModel.swift */; };
 		4B7ECF1AC6A7FE5BE2265925 /* RicePresets.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6ACE71988B43B34B647C77D /* RicePresets.swift */; };
+		57EB6238D91B6E8A07BD2E3D /* RiceContrast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA4598C24BC02181E585CB1 /* RiceContrast.swift */; };
 		5EA6BF19C26339C0FEFEDA49 /* RiceRendering.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5A52F852A2234BDADEE4D3B /* RiceRendering.swift */; };
 		619C59867206D55406F2C9D1 /* RiceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13DFE17F79398C78B851CD2 /* RiceStore.swift */; };
+		673717F6B7EDEF663278CE42 /* traversal.ricepack in Resources */ = {isa = PBXBuildFile; fileRef = 42B1AC0BA3BC37BF55772B98 /* traversal.ricepack */; };
 		6BB134972AEE7DF89A324AAD /* RiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66DA58423422C83147DD926F /* RiceTests.swift */; };
 		6E013AB359950B4A6BC360A3 /* dusk-sample.ricepack in Resources */ = {isa = PBXBuildFile; fileRef = BC876291CFFFE8C3E570F189 /* dusk-sample.ricepack */; };
+		71055E74EA00B35252D53388 /* RiceContrast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EA4598C24BC02181E585CB1 /* RiceContrast.swift */; };
+		76E854D6A777F09C0534C626 /* valid-image.ricepack in Resources */ = {isa = PBXBuildFile; fileRef = A9BBDC296744748B18CFFE14 /* valid-image.ricepack */; };
+		83E47EE375313E2014B3196B /* duplicate-json-key.ricepack in Resources */ = {isa = PBXBuildFile; fileRef = A9158F3B20AD599BBD790882 /* duplicate-json-key.ricepack */; };
 		8667A8E89559C60F42BD1003 /* RicePack.swift in Sources */ = {isa = PBXBuildFile; fileRef = D79141EFB641680CC471C974 /* RicePack.swift */; };
 		87F4D9F5A98B978619853D0C /* RiceApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E32EF7A803E81DD6F0608D0 /* RiceApp.swift */; };
 		924E5A7A6E4F3B72C7D5DBA4 /* RiceWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3B9A128E4D45BD140FC2CA4B /* RiceWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		9304307B479EC6844CD67FCF /* hash-mismatch.ricepack in Resources */ = {isa = PBXBuildFile; fileRef = 40EF6155256E5763DAB0EECA /* hash-mismatch.ricepack */; };
 		97FAF196CC9CABD57828727F /* RicePack.swift in Sources */ = {isa = PBXBuildFile; fileRef = D79141EFB641680CC471C974 /* RicePack.swift */; };
 		98E63594108B3B9F5F4308B1 /* paper-sample.ricepack in Resources */ = {isa = PBXBuildFile; fileRef = 01325FB937F56FFFEFCA4243 /* paper-sample.ricepack */; };
 		9A56D2B3074D41237D7FF0B7 /* StrictJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37082F41E5B4FFB3C1CFBF73 /* StrictJSON.swift */; };
+		A1E3270956527444300605E9 /* duplicate-member.ricepack in Resources */ = {isa = PBXBuildFile; fileRef = 2D53CA621C01CE2493165004 /* duplicate-member.ricepack */; };
+		A2EBB938AD8C71305ECAF8B8 /* RiceImages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA8AB27EB9C5543714CC975 /* RiceImages.swift */; };
 		A4A329C9F81E3BF25B874766 /* RiceRendering.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5A52F852A2234BDADEE4D3B /* RiceRendering.swift */; };
+		A86CDD7E0DB01EA7F4505183 /* RiceImages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA8AB27EB9C5543714CC975 /* RiceImages.swift */; };
 		AC4F3E1883F63B274299C48E /* StrictJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37082F41E5B4FFB3C1CFBF73 /* StrictJSON.swift */; };
 		B0B6534F860CE77CB926172F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 727A8673B29E7604E4A5C751 /* Assets.xcassets */; };
+		BF13B8ACFE192DE8D4C94CCE /* missing-asset.ricepack in Resources */ = {isa = PBXBuildFile; fileRef = ACDEFCC529F797E6D43CADB0 /* missing-asset.ricepack */; };
 		C202B012E036D609158E9C32 /* RiceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F62BA578772277D5EFE187C9 /* RiceModel.swift */; };
+		E0D2EDADC183C8051EEFE44E /* script-node.ricepack in Resources */ = {isa = PBXBuildFile; fileRef = 2F5A6F74C9BB9C601410D6FD /* script-node.ricepack */; };
 		FD4C1FFE0961A152224E2000 /* RicePresets.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6ACE71988B43B34B647C77D /* RicePresets.swift */; };
 		FDDE016BB16510A06944615C /* geometry-sample.ricepack in Resources */ = {isa = PBXBuildFile; fileRef = F28F1E03CB59CADC079CFF2C /* geometry-sample.ricepack */; };
 /* End PBXBuildFile section */
@@ -65,25 +84,42 @@
 /* Begin PBXFileReference section */
 		01325FB937F56FFFEFCA4243 /* paper-sample.ricepack */ = {isa = PBXFileReference; path = "paper-sample.ricepack"; sourceTree = "<group>"; };
 		06EEF6DDDDA984CB53A6CA8E /* RiceRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiceRootView.swift; sourceTree = "<group>"; };
+		2D53CA621C01CE2493165004 /* duplicate-member.ricepack */ = {isa = PBXFileReference; path = "duplicate-member.ricepack"; sourceTree = "<group>"; };
+		2F4D33CCAE1F96A416026480 /* unknown-capability.ricepack */ = {isa = PBXFileReference; path = "unknown-capability.ricepack"; sourceTree = "<group>"; };
+		2F5A6F74C9BB9C601410D6FD /* script-node.ricepack */ = {isa = PBXFileReference; path = "script-node.ricepack"; sourceTree = "<group>"; };
+		2FA8AB27EB9C5543714CC975 /* RiceImages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiceImages.swift; sourceTree = "<group>"; };
 		37082F41E5B4FFB3C1CFBF73 /* StrictJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrictJSON.swift; sourceTree = "<group>"; };
 		3B9A128E4D45BD140FC2CA4B /* RiceWidgets.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = RiceWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		40957F30ECAC7AD1BCF292DF /* compressed.ricepack */ = {isa = PBXFileReference; path = compressed.ricepack; sourceTree = "<group>"; };
+		40EF6155256E5763DAB0EECA /* hash-mismatch.ricepack */ = {isa = PBXFileReference; path = "hash-mismatch.ricepack"; sourceTree = "<group>"; };
+		42B1AC0BA3BC37BF55772B98 /* traversal.ricepack */ = {isa = PBXFileReference; path = traversal.ricepack; sourceTree = "<group>"; };
+		4C91162EC74DF504AB3537E6 /* malformed-image.ricepack */ = {isa = PBXFileReference; path = "malformed-image.ricepack"; sourceTree = "<group>"; };
+		5EA4598C24BC02181E585CB1 /* RiceContrast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiceContrast.swift; sourceTree = "<group>"; };
 		5FD69A4C7F6A48482D839D20 /* RiceArtwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiceArtwork.swift; sourceTree = "<group>"; };
 		643D7E34AEFAC2F43DBD0587 /* RiceWidgets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiceWidgets.swift; sourceTree = "<group>"; };
 		66DA58423422C83147DD926F /* RiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiceTests.swift; sourceTree = "<group>"; };
 		6B25E78FD108471C1376F097 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		6E32EF7A803E81DD6F0608D0 /* RiceApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiceApp.swift; sourceTree = "<group>"; };
 		727A8673B29E7604E4A5C751 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		75EE194719D9EF0C4006057F /* case-collision.ricepack */ = {isa = PBXFileReference; path = "case-collision.ricepack"; sourceTree = "<group>"; };
 		782975BDB05E4B853505F28A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		7A3A1BBECA01BB2B422ECCB0 /* symlink.ricepack */ = {isa = PBXFileReference; path = symlink.ricepack; sourceTree = "<group>"; };
+		853A176F2A41BCD00B75CFB8 /* deep-tree.ricepack */ = {isa = PBXFileReference; path = "deep-tree.ricepack"; sourceTree = "<group>"; };
 		864A7A0A503888F8261ECA64 /* RiceTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = RiceTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		883D43B49B934A126FDEB0C3 /* Rice.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Rice.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A5A52F852A2234BDADEE4D3B /* RiceRendering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiceRendering.swift; sourceTree = "<group>"; };
+		A9158F3B20AD599BBD790882 /* duplicate-json-key.ricepack */ = {isa = PBXFileReference; path = "duplicate-json-key.ricepack"; sourceTree = "<group>"; };
+		A9BBDC296744748B18CFFE14 /* valid-image.ricepack */ = {isa = PBXFileReference; path = "valid-image.ricepack"; sourceTree = "<group>"; };
+		ACDEFCC529F797E6D43CADB0 /* missing-asset.ricepack */ = {isa = PBXFileReference; path = "missing-asset.ricepack"; sourceTree = "<group>"; };
 		B13DFE17F79398C78B851CD2 /* RiceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiceStore.swift; sourceTree = "<group>"; };
 		BC876291CFFFE8C3E570F189 /* dusk-sample.ricepack */ = {isa = PBXFileReference; path = "dusk-sample.ricepack"; sourceTree = "<group>"; };
+		C3EE2A78C7D966A7AAAC94B7 /* fake-length.ricepack */ = {isa = PBXFileReference; path = "fake-length.ricepack"; sourceTree = "<group>"; };
 		C6F50818FECEBCEA4AA19BDA /* Rice.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Rice.entitlements; sourceTree = "<group>"; };
 		D79141EFB641680CC471C974 /* RicePack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RicePack.swift; sourceTree = "<group>"; };
 		F28F1E03CB59CADC079CFF2C /* geometry-sample.ricepack */ = {isa = PBXFileReference; path = "geometry-sample.ricepack"; sourceTree = "<group>"; };
 		F62BA578772277D5EFE187C9 /* RiceModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiceModel.swift; sourceTree = "<group>"; };
 		F6ACE71988B43B34B647C77D /* RicePresets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RicePresets.swift; sourceTree = "<group>"; };
+		FBF12811F9E332258E15077B /* missing-license.ricepack */ = {isa = PBXFileReference; path = "missing-license.ricepack"; sourceTree = "<group>"; };
 		FDAC28CAC03138FFAFFDAE0A /* RiceWidgets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RiceWidgets.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -107,6 +143,29 @@
 			path = Tests/RiceTests;
 			sourceTree = "<group>";
 		};
+		15ADE1A03601802B68017094 /* Fixtures */ = {
+			isa = PBXGroup;
+			children = (
+				75EE194719D9EF0C4006057F /* case-collision.ricepack */,
+				40957F30ECAC7AD1BCF292DF /* compressed.ricepack */,
+				853A176F2A41BCD00B75CFB8 /* deep-tree.ricepack */,
+				A9158F3B20AD599BBD790882 /* duplicate-json-key.ricepack */,
+				2D53CA621C01CE2493165004 /* duplicate-member.ricepack */,
+				C3EE2A78C7D966A7AAAC94B7 /* fake-length.ricepack */,
+				40EF6155256E5763DAB0EECA /* hash-mismatch.ricepack */,
+				4C91162EC74DF504AB3537E6 /* malformed-image.ricepack */,
+				ACDEFCC529F797E6D43CADB0 /* missing-asset.ricepack */,
+				FBF12811F9E332258E15077B /* missing-license.ricepack */,
+				2F5A6F74C9BB9C601410D6FD /* script-node.ricepack */,
+				7A3A1BBECA01BB2B422ECCB0 /* symlink.ricepack */,
+				42B1AC0BA3BC37BF55772B98 /* traversal.ricepack */,
+				2F4D33CCAE1F96A416026480 /* unknown-capability.ricepack */,
+				A9BBDC296744748B18CFFE14 /* valid-image.ricepack */,
+			);
+			name = Fixtures;
+			path = Tests/Fixtures;
+			sourceTree = "<group>";
+		};
 		2C65A23AAEA0006D863F38F9 /* Rice */ = {
 			isa = PBXGroup;
 			children = (
@@ -125,6 +184,7 @@
 			isa = PBXGroup;
 			children = (
 				E983EE083807FBB454AB3468 /* examples */,
+				15ADE1A03601802B68017094 /* Fixtures */,
 				2C65A23AAEA0006D863F38F9 /* Rice */,
 				1424EE591056EA259E119AD9 /* RiceTests */,
 				92DCE8CA4D47469386BCEE47 /* RiceWidgets */,
@@ -147,6 +207,8 @@
 		A300BFEF04DDCAA9DAC3337F /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				5EA4598C24BC02181E585CB1 /* RiceContrast.swift */,
+				2FA8AB27EB9C5543714CC975 /* RiceImages.swift */,
 				F62BA578772277D5EFE187C9 /* RiceModel.swift */,
 				D79141EFB641680CC471C974 /* RicePack.swift */,
 				F6ACE71988B43B34B647C77D /* RicePresets.swift */,
@@ -275,9 +337,24 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0D00F35ABDE589FA964E8613 /* case-collision.ricepack in Resources */,
+				1B4A6D01007EA96FECFF0041 /* compressed.ricepack in Resources */,
+				1A683CA713F1D15A4D45E01E /* deep-tree.ricepack in Resources */,
+				83E47EE375313E2014B3196B /* duplicate-json-key.ricepack in Resources */,
+				A1E3270956527444300605E9 /* duplicate-member.ricepack in Resources */,
 				6E013AB359950B4A6BC360A3 /* dusk-sample.ricepack in Resources */,
+				40E6EA6870DA849B436D5168 /* fake-length.ricepack in Resources */,
 				FDDE016BB16510A06944615C /* geometry-sample.ricepack in Resources */,
+				9304307B479EC6844CD67FCF /* hash-mismatch.ricepack in Resources */,
+				27A22EABB7274466D31918F9 /* malformed-image.ricepack in Resources */,
+				BF13B8ACFE192DE8D4C94CCE /* missing-asset.ricepack in Resources */,
+				25274A4CF33136B8084FE150 /* missing-license.ricepack in Resources */,
 				98E63594108B3B9F5F4308B1 /* paper-sample.ricepack in Resources */,
+				E0D2EDADC183C8051EEFE44E /* script-node.ricepack in Resources */,
+				041CA784D7CB18DCD40179C9 /* symlink.ricepack in Resources */,
+				673717F6B7EDEF663278CE42 /* traversal.ricepack in Resources */,
+				378391F2FBD18F61A54E60B3 /* unknown-capability.ricepack in Resources */,
+				76E854D6A777F09C0534C626 /* valid-image.ricepack in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -296,6 +373,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				71055E74EA00B35252D53388 /* RiceContrast.swift in Sources */,
+				A2EBB938AD8C71305ECAF8B8 /* RiceImages.swift in Sources */,
 				C202B012E036D609158E9C32 /* RiceModel.swift in Sources */,
 				97FAF196CC9CABD57828727F /* RicePack.swift in Sources */,
 				4B7ECF1AC6A7FE5BE2265925 /* RicePresets.swift in Sources */,
@@ -312,6 +391,8 @@
 			files = (
 				87F4D9F5A98B978619853D0C /* RiceApp.swift in Sources */,
 				3018A5034227D2E5A91ED315 /* RiceArtwork.swift in Sources */,
+				57EB6238D91B6E8A07BD2E3D /* RiceContrast.swift in Sources */,
+				A86CDD7E0DB01EA7F4505183 /* RiceImages.swift in Sources */,
 				44EEFEC1D6B6FBB21673AA48 /* RiceModel.swift in Sources */,
 				8667A8E89559C60F42BD1003 /* RicePack.swift in Sources */,
 				FD4C1FFE0961A152224E2000 /* RicePresets.swift in Sources */,

@@ -82,6 +82,7 @@ targets:
     platform: iOS
     sources:
       - path: Tests/RiceTests
+      - path: Tests/Fixtures
       - path: examples
     settings:
       base:

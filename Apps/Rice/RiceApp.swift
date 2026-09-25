@@ -2,6 +2,7 @@ import SwiftUI
 import WidgetKit
 import UniformTypeIdentifiers
 import UIKit
+import ImageIO
 
 extension UTType {
     static let ricepack = UTType(exportedAs: "app.marginallybetter.ricepack", conformingTo: .zip)
@@ -26,6 +27,12 @@ struct ShareSheet: UIViewControllerRepresentable {
     @Published var pendingImport: RicePack?
     @Published var shareItem: ShareItem?
     @Published var appGroupAvailable: Bool
+    @Published var wallpaperPattern: RicePattern
+    @Published var wallpaperPhoto: UIImage?
+    @Published var previewImages: [String: [String: UIImage]] = [:]
+    @Published var pendingImages: [String: UIImage] = [:]
+    @Published var focalX: Double
+    @Published var focalY: Double
     private var undoStack: [RiceManifest] = []
     private var redoStack: [RiceManifest] = []
     private let store: RiceStore
@@ -35,6 +42,13 @@ struct ShareSheet: UIViewControllerRepresentable {
         appGroupAvailable = shared != nil
         store = shared ?? RiceStore.localApp()
         state = (try? store.read()) ?? RiceStore.initialState()
+        wallpaperPattern = RicePattern(rawValue: UserDefaults.standard.string(forKey: "wallpaperPattern") ?? "Rings") ?? .rings
+        focalX = UserDefaults.standard.object(forKey: "focalX") as? Double ?? 0.5
+        focalY = UserDefaults.standard.object(forKey: "focalY") as? Double ?? 0.5
+        wallpaperPhoto = UIImage(contentsOfFile: Self.photoURL.path)
+        if let first = state.themes.first(where: { $0.id == state.activeThemeID })?.components.first {
+            loadPreviewImages(for: first)
+        }
     }
 
     var activeTheme: RiceManifest { state.themes.first(where: { $0.id == state.activeThemeID }) ?? RicePresets.all[0] }
@@ -50,7 +64,9 @@ struct ShareSheet: UIViewControllerRepresentable {
     func activate(_ id: String) {
         guard state.themes.contains(where: { $0.id == id }) else { return }
         state.activeThemeID = id
+        previewImages.removeAll()
         let theme = activeTheme
+        if let first = theme.components.first { loadPreviewImages(for: first) }
         for index in state.slots.indices where !state.slots[index].pinned {
             if let suggested = theme.slots.first(where: { $0.role == state.slots[index].role }) {
                 state.slots[index].themeID = theme.id
@@ -79,6 +95,27 @@ struct ShareSheet: UIViewControllerRepresentable {
         children[0].text = String(text.prefix(500))
         theme.components[component].root.children = children
         replace(theme)
+    }
+
+    func editNode(componentID: String, path: [Int], change: (inout RiceNode) -> Void) {
+        var theme = activeTheme
+        guard let index = theme.components.firstIndex(where: { $0.id == componentID }) else { return }
+        var root = theme.components[index].root
+        guard Self.applyChange(&root, path: path, change: change) else { return }
+        theme.components[index].root = root
+        do { try RiceValidator.validate(theme) }
+        catch { self.error = error.localizedDescription; return }
+        undoStack.append(activeTheme)
+        redoStack.removeAll()
+        replace(theme)
+    }
+
+    private static func applyChange(_ node: inout RiceNode, path: [Int], change: (inout RiceNode) -> Void) -> Bool {
+        guard let index = path.first else { change(&node); return true }
+        guard var children = node.children, children.indices.contains(index) else { return false }
+        let changed = applyChange(&children[index], path: Array(path.dropFirst()), change: change)
+        if changed { node.children = children }
+        return changed
     }
 
     func undo() {
@@ -111,7 +148,13 @@ struct ShareSheet: UIViewControllerRepresentable {
     func prepareImport(_ url: URL) {
         let scoped = url.startAccessingSecurityScopedResource()
         defer { if scoped { url.stopAccessingSecurityScopedResource() } }
-        do { pendingImport = try RicePack.read(Data(contentsOf: url)) }
+        do {
+            let pack = try RicePack.read(Data(contentsOf: url))
+            if let component = pack.manifest.components.first {
+                pendingImages = RiceImages.load(component: component, theme: pack.manifest) { pack.files[$0.path] }
+            } else { pendingImages = [:] }
+            pendingImport = pack
+        }
         catch { self.error = error.localizedDescription }
     }
 
@@ -121,7 +164,16 @@ struct ShareSheet: UIViewControllerRepresentable {
             try store.install(pack.manifest, files: pack.files)
             state = try store.read()
             pendingImport = nil
+            pendingImages = [:]
         } catch { self.error = error.localizedDescription }
+    }
+
+    func loadPreviewImages(for component: RiceComponent) {
+        guard previewImages[component.id] == nil else { return }
+        let theme = activeTheme
+        previewImages[component.id] = RiceImages.load(component: component, theme: theme) { asset in
+            try? Data(contentsOf: store.assetURL(themeID: theme.id, path: asset.path))
+        }
     }
 
     func exportTheme() {
@@ -144,7 +196,9 @@ struct ShareSheet: UIViewControllerRepresentable {
     func exportArtwork(icon: Bool) {
         do {
             let size = icon ? CGSize(width: 1024, height: 1024) : CGSize(width: 1179, height: 2556)
-            let image = RiceArtwork.render(theme: activeTheme, size: size, icon: icon)
+            let image = RiceArtwork.render(theme: activeTheme, size: size, icon: icon,
+                pattern: icon ? .rings : wallpaperPattern, photo: icon ? nil : wallpaperPhoto,
+                focalPoint: CGPoint(x: focalX, y: focalY))
             guard let data = image.pngData() else { throw RiceValidationError.invalid("Image export failed") }
             let url = FileManager.default.temporaryDirectory.appending(path: icon ? "rice-icon.png" : "rice-wallpaper.png")
             try data.write(to: url, options: .atomic)
@@ -152,10 +206,77 @@ struct ShareSheet: UIViewControllerRepresentable {
         } catch { self.error = error.localizedDescription }
     }
 
+    func setWallpaperPattern(_ pattern: RicePattern) {
+        guard pattern != .photo || wallpaperPhoto != nil else {
+            error = "Choose a photo before selecting the Photo wallpaper style."
+            return
+        }
+        wallpaperPattern = pattern
+        UserDefaults.standard.set(pattern.rawValue, forKey: "wallpaperPattern")
+    }
+
+    func setFocalPoint(x: Double? = nil, y: Double? = nil) {
+        if let x { focalX = x; UserDefaults.standard.set(x, forKey: "focalX") }
+        if let y { focalY = y; UserDefaults.standard.set(y, forKey: "focalY") }
+    }
+
+    func importWallpaperPhoto(_ data: Data) async {
+        do {
+            guard data.count <= RiceLimits.archiveBytes else { throw RiceValidationError.invalid("Photo is too large") }
+            guard let sanitized = await Task.detached(priority: .userInitiated, operation: { Self.sanitizePhoto(data) }).value else {
+                throw RiceValidationError.invalid("Unsupported photo")
+            }
+            try FileManager.default.createDirectory(at: Self.photoURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try sanitized.write(to: Self.photoURL, options: .atomic)
+            wallpaperPhoto = UIImage(data: sanitized)
+            setWallpaperPattern(.photo)
+        } catch { self.error = error.localizedDescription }
+    }
+
+    func removeWallpaperPhoto() {
+        try? FileManager.default.removeItem(at: Self.photoURL)
+        wallpaperPhoto = nil
+        setWallpaperPattern(.rings)
+    }
+
+    private static var photoURL: URL { RiceStore.localApp().root.appending(path: "artwork/wallpaper.jpg") }
+
+    nonisolated private static func sanitizePhoto(_ data: Data) -> Data? {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
+        let options: [CFString: Any] = [kCGImageSourceCreateThumbnailFromImageAlways: true,
+                                       kCGImageSourceThumbnailMaxPixelSize: 4096,
+                                       kCGImageSourceCreateThumbnailWithTransform: true]
+        guard let image = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary),
+              image.width * image.height <= 16_000_000 else { return nil }
+        let output = NSMutableData()
+        guard let destination = CGImageDestinationCreateWithData(output, UTType.jpeg.identifier as CFString, 1, nil) else { return nil }
+        CGImageDestinationAddImage(destination, image, [kCGImageDestinationLossyCompressionQuality: 0.88] as CFDictionary)
+        guard CGImageDestinationFinalize(destination) else { return nil }
+        return output as Data
+    }
+
     func setSetupStep(_ id: String, done: Bool) {
         state.completedSetupSteps.removeAll(where: { $0 == id })
         if done { state.completedSetupSteps.append(id) }
         save()
+    }
+
+    func exportDiagnostics() {
+        do {
+            let contents: [String: Any] = [
+                "appVersion": "0.1.0",
+                "osVersion": UIDevice.current.systemVersion,
+                "appGroupAvailable": appGroupAvailable,
+                "themeCount": state.themes.count,
+                "slotCount": state.slots.count,
+                "lastRefreshRequested": state.lastRefreshRequested?.ISO8601Format() ?? "none",
+                "lastWidgetDataRead": (try? RiceStore.shared().lastWidgetRead())?.ISO8601Format() ?? "none"
+            ]
+            let data = try JSONSerialization.data(withJSONObject: contents, options: [.sortedKeys, .prettyPrinted])
+            let url = FileManager.default.temporaryDirectory.appending(path: "rice-diagnostics.json")
+            try data.write(to: url, options: .atomic)
+            shareItem = ShareItem(url: url)
+        } catch { self.error = error.localizedDescription }
     }
 }
 

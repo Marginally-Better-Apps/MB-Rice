@@ -1,5 +1,6 @@
 import AppIntents
 import SwiftUI
+import UIKit
 import WidgetKit
 
 struct SlotEntity: AppEntity {
@@ -32,7 +33,7 @@ struct RiceEntry: TimelineEntry {
     let date: Date
     let theme: RiceManifest
     let component: RiceComponent
-    let assetRoot: URL?
+    let images: [String: UIImage]
 }
 
 struct RiceProvider: AppIntentTimelineProvider {
@@ -47,11 +48,14 @@ struct RiceProvider: AppIntentTimelineProvider {
               let theme = state.themes.first(where: { $0.id == slot.themeID }),
               let component = theme.components.first(where: { $0.id == slot.componentID }) else { return fallback() }
         store.recordWidgetRead(.now)
-        return RiceEntry(date: .now, theme: theme, component: component, assetRoot: store.root.appending(path: "themes").appending(path: theme.id))
+        let images = RiceImages.load(component: component, theme: theme) { asset in
+            try? Data(contentsOf: store.assetURL(themeID: theme.id, path: asset.path))
+        }
+        return RiceEntry(date: .now, theme: theme, component: component, images: images)
     }
     private func fallback() -> RiceEntry {
         let theme = RicePresets.all[0]
-        return RiceEntry(date: .now, theme: theme, component: theme.components[0], assetRoot: nil)
+        return RiceEntry(date: .now, theme: theme, component: theme.components[0], images: [:])
     }
 }
 
@@ -59,7 +63,7 @@ struct RiceWidget: Widget {
     let kind = "RiceSlotWidget"
     var body: some WidgetConfiguration {
         AppIntentConfiguration(kind: kind, intent: SelectSlotIntent.self, provider: RiceProvider()) { entry in
-            RiceComponentView(component: entry.component, theme: entry.theme, assetRoot: entry.assetRoot)
+            RiceComponentView(component: entry.component, theme: entry.theme, images: entry.images)
                 .containerBackground(for: .widget) {
                     Color(hex: entry.theme.tokens[entry.component.background ?? "background"] ?? "#000000") ?? .black
                 }

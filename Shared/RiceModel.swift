@@ -100,6 +100,7 @@ enum RiceValidator {
             else { throw RiceValidationError.invalid("Invalid component") }
             var count = 0
             try validateNode(component.root, theme: theme, depth: 0, count: &count)
+            guard RiceImages.referencedIDs(in: component.root).count <= 8 else { throw RiceValidationError.invalid("Too many images in one component") }
         }
         for slot in theme.slots {
             guard validID(slot.role), componentIDs.contains(slot.component),

@@ -62,4 +62,33 @@ final class RiceTests: XCTestCase {
             XCTAssertEqual(pack.manifest.id, name)
         }
     }
+
+    func testMaliciousPackFixturesFailSafely() throws {
+        for name in ["traversal", "duplicate-member", "duplicate-json-key", "script-node",
+                     "unknown-capability", "compressed", "missing-license", "case-collision",
+                     "deep-tree", "hash-mismatch", "missing-asset", "malformed-image",
+                     "fake-length", "symlink"] {
+            let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: name, withExtension: "ricepack"))
+            XCTAssertThrowsError(try RicePack.read(Data(contentsOf: url)), name)
+        }
+        let valid = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "valid-image", withExtension: "ricepack"))
+        let pack = try RicePack.read(Data(contentsOf: valid))
+        XCTAssertEqual(pack.manifest.assets.count, 1)
+        let images = RiceImages.load(component: pack.manifest.components[0], theme: pack.manifest) { pack.files[$0.path] }
+        XCTAssertNotNil(images["pixel"])
+    }
+
+    func testProceduralArtworkExportsPNG() throws {
+        for pattern in RicePattern.allCases where pattern != .photo {
+            let image = RiceArtwork.render(theme: RicePresets.all[0], size: CGSize(width: 320, height: 640), icon: false, pattern: pattern)
+            XCTAssertEqual(image.size.width, 320)
+            XCTAssertEqual(image.cgImage?.width, 320)
+            XCTAssertNotNil(image.pngData())
+        }
+    }
+
+    func testContrastCalculation() {
+        XCTAssertEqual(RiceContrast.ratio("#000000", "#FFFFFF") ?? 0, 21, accuracy: 0.001)
+        XCTAssertEqual(RiceContrast.ratio("#123456", "#123456") ?? 0, 1, accuracy: 0.001)
+    }
 }

@@ -1,0 +1,14 @@
+appId: app.marginallybetter.rice
+---
+- launchApp
+- tapOn: "Studio"
+- assertVisible: "Widget layers"
+- scrollUntilVisible:
+    element:
+      text: "Export wallpaper image"
+    direction: DOWN
+    visibilityPercentage: 50
+- assertVisible: "Export wallpaper image"
+- takeScreenshot: "studio-iphone17pro-ios26.5"
+- tapOn: "Setup"
+- assertVisible: "Widget slots"

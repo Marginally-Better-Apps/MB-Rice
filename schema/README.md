@@ -32,4 +32,4 @@ Example:
 
 Each asset declares `id`, `path`, `mimeType`, `length`, `sha256`, and `license`. SHA-256 checks bytes, not author identity or rights. The app accepts a single-frame PNG, JPEG, or static WebP with at most 16 million decoded pixels and 8192 pixels per edge. Files and license text stay local. Exports contain public theme data; slot bindings and App Group state stay on the device.
 
-Initial limits: 50 MiB archive, 150 MiB total expanded bytes, 512 ZIP entries, 20 MiB per entry, 1 MiB manifest, 512 scene nodes, and 24 scene levels. Some limits matter less while only stored ZIP entries are supported. See `RiceLimits` for the executable policy.
+Initial limits: 50 MiB archive, 150 MiB total expanded bytes, 512 ZIP entries, 20 MiB per entry, 1 MiB manifest, 512 scene nodes, 24 scene levels, and eight distinct image assets per component. Some limits matter less while only stored ZIP entries are supported. See `RiceLimits` and `RiceValidator` for the executable policy.

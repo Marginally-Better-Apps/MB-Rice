@@ -7,12 +7,13 @@ This repository is an early development build. It is not a release candidate. Th
 ## What works in source
 
 - Eight original built-in color themes and two declarative widget components per theme.
-- A palette and caption editor with undo, redo and duplication.
+- A palette and widget scene-tree editor with undo, redo, duplication and text contrast warnings.
 - Local `.ricepack` review, import and export. The current importer accepts uncompressed ZIP entries only.
 - Three original importable [sample packs](examples/) are included for format testing and remixing.
 - A WidgetKit extension with Home Screen small, medium and large families plus Lock Screen rectangular accessory. Widgets refer to stable slot IDs and read the app's App Group state.
 - A setup checklist that records user-reported progress, with separate widget refresh request and extension read timestamps.
-- Procedural PNG wallpaper and icon artwork exports. iOS applies wallpaper and Shortcuts launchers through its own UI.
+- Four procedural wallpaper styles, local photo selection with focal-point controls, and PNG wallpaper and icon exports. Selected photos stay in app storage and are excluded from theme packs. iOS applies wallpaper and Shortcuts launchers through its own UI.
+- Local diagnostic inspection and user-triggered JSON export.
 
 The app does not yet have photo import, a layer-tree editor, alternate appearances, Live Activities, controls, AlarmKit, Focus filters, optional providers, community catalog, or full malicious-archive coverage. See [evidence ledger](docs/EVIDENCE.md) for the current test status.
 
