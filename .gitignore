@@ -6,3 +6,4 @@ artifacts/
 *.xcworkspace/xcuserdata/
 *.xcodeproj/xcuserdata/
 .swiftpm/
+__pycache__/

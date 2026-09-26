@@ -29,7 +29,7 @@ xcodebuild -project Rice.xcodeproj -scheme Rice -configuration Debug -sdk iphone
 
 The project sets `IPHONEOS_DEPLOYMENT_TARGET=27.0`. With the installed iOS 26.5 SDK, Xcode warns that this target exceeds the SDK. To run the current code in an iOS 26.5 simulator, temporarily change the target in `project.yml` to 26.5 and regenerate. Restore 27.0 before committing. App Group widget sharing on a physical iPhone requires matching signed entitlements for the app and extension.
 
-The unsigned device IPA is built from a Release `iphoneos` build by placing `Rice.app` in a `Payload` directory and zipping it. See [build notes](docs/BUILD.md). Autoloader signs the IPA on the device. Its signing profile must allow the same App Group for Rice and the widget extension, or Home Screen updates cannot reach the widget. Reinstalling the same IPA with the same profile cannot grant a missing App Group. Check Settings → Diagnostics → Shared widget storage after installation.
+The unsigned device IPA is built from a Release `iphoneos` build by placing `Rice.app` in a `Payload` directory and zipping it. See [build notes](docs/BUILD.md). A device install needs separate explicit provisioning profiles for Rice and Rice Widgets, with the same App Group in each. The current Autoloader signer passes one profile for the whole bundle, and an iOS 27 Autoloader install has reported shared widget storage unavailable. The development IPA is therefore not a verified Home Screen widget build. Reinstalling the same IPA with the same signing profile cannot grant a missing App Group.
 
 ## Format
 
